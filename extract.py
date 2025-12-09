@@ -133,15 +133,16 @@ def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
                 z_bit_index += 1
     
     # ========== 步驟 4：XOR 解密 ==========
-    secret_bits = xor_decrypt(encrypted_bits, contact_key)
-    
-    # ========== 步驟 5：將機密位元轉回原始內容 ==========
-    # 修正：跳過類型標記（第 1 bit）
-    if len(secret_bits) < 1:
+    # 只對 content_bits 解密，type_marker 不需要解密
+    if len(encrypted_bits) < 1:
         raise ValueError("提取的位元數不足，無法讀取類型標記")
     
-    type_marker = secret_bits[0]
-    content_bits = secret_bits[1:]  # ← 跳過類型標記！
+    type_marker = encrypted_bits[0]  # type_marker 沒有被加密
+    encrypted_content = encrypted_bits[1:]  # 這些才是加密後的內容
+    content_bits = xor_decrypt(encrypted_content, contact_key)  # 解密內容
+    
+    # ========== 步驟 5：將機密位元轉回原始內容 ==========
+    secret_bits = [type_marker] + content_bits  # 重組（用於 info）
     
     if secret_type == 'text':
         secret = binary_to_text(content_bits)
@@ -226,15 +227,16 @@ def detect_and_extract(cover_image, z_bits, contact_key=None):
                 z_bit_index += 1
     
     # ========== XOR 解密 ==========
-    secret_bits = xor_decrypt(encrypted_bits, contact_key)
-    
-    # 檢查是否有足夠的 bits
-    if len(secret_bits) < 1:
+    # 只對 content_bits 解密，type_marker 不需要解密
+    if len(encrypted_bits) < 1:
         raise ValueError("Z 碼太短，無法提取類型標記")
     
-    # ========== 讀取類型標記（第 1 bit）==========
-    type_marker = secret_bits[0]
-    content_bits = secret_bits[1:]  # 跳過類型標記
+    type_marker = encrypted_bits[0]  # type_marker 沒有被加密
+    encrypted_content = encrypted_bits[1:]  # 這些才是加密後的內容
+    content_bits = xor_decrypt(encrypted_content, contact_key)  # 解密內容
+    
+    # 重組 secret_bits（用於 info）
+    secret_bits = [type_marker] + content_bits
     
     if type_marker == 0:
         # 文字類型
