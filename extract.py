@@ -1,6 +1,7 @@
-# extract.py → 提取模組（支援文字和圖片，含對象密鑰）
+# extract.py → 提取模組（支援文字和圖片，含對象密鑰 + XOR 解密）
 
 import numpy as np
+import hashlib
 
 from config import Q_LENGTH, TOTAL_AVERAGES_PER_UNIT, BLOCK_SIZE
 from permutation import generate_Q_from_block, apply_Q_three_rounds
@@ -8,6 +9,38 @@ from image_processing import calculate_hierarchical_averages
 from binary_operations import get_msbs
 from mapping import map_from_z
 from secret_encoding import binary_to_text, binary_to_image
+
+
+def xor_decrypt(bits, key):
+    """
+    用 contact_key 對 bits 進行 XOR 解密（和加密一樣）
+    
+    參數:
+        bits: 要解密的位元列表
+        key: 密鑰字串
+    
+    返回:
+        decrypted_bits: 解密後的位元列表
+    """
+    if not key:
+        return bits  # 沒有 key 就不解密
+    
+    # 用 key 生成足夠長的密鑰流
+    key_bits = []
+    key_hash = hashlib.sha256(key.encode()).digest()
+    
+    while len(key_bits) < len(bits):
+        for byte in key_hash:
+            key_bits.extend([int(b) for b in format(byte, '08b')])
+            if len(key_bits) >= len(bits):
+                break
+        # 重新 hash 以獲得更多 bits
+        key_hash = hashlib.sha256(key_hash).digest()
+    
+    # XOR 運算（解密和加密相同）
+    decrypted_bits = [bits[i] ^ key_bits[i] for i in range(len(bits))]
+    return decrypted_bits
+
 
 def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
     """
@@ -28,7 +61,8 @@ def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
         1. 圖片預處理（彩色轉灰階、檢查尺寸）
         2. 計算 8×8 區塊數量
         3. 對每個 8×8 區塊進行提取（使用 contact_key 生成 Q）
-        4. 跳過類型標記，將機密位元轉回原始內容
+        4. XOR 解密（使用 contact_key）
+        5. 跳過類型標記，將機密位元轉回原始內容
     """
     cover_image = np.array(cover_image)
     
@@ -52,7 +86,7 @@ def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
     num_cols = width // BLOCK_SIZE
     
     # ========== 步驟 3：對每個 8×8 區塊進行提取 ==========
-    secret_bits = []
+    encrypted_bits = []  # ← 這是加密後的 bits
     z_bit_index = 0
     finished = False
     
@@ -85,7 +119,7 @@ def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
             # 3.5 提取排列後的 21 個 MSB
             msbs = get_msbs(reordered_averages)
             
-            # 3.6 反向映射還原機密位元
+            # 3.6 反向映射還原加密後的位元
             for k in range(TOTAL_AVERAGES_PER_UNIT):
                 if z_bit_index >= len(z_bits):
                     finished = True
@@ -93,12 +127,15 @@ def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
                 
                 z_bit = z_bits[z_bit_index]
                 msb = msbs[k]
-                secret_bit = map_from_z(z_bit, msb)
-                secret_bits.append(secret_bit)
+                encrypted_bit = map_from_z(z_bit, msb)
+                encrypted_bits.append(encrypted_bit)
                 
                 z_bit_index += 1
     
-    # ========== 步驟 4：將機密位元轉回原始內容 ==========
+    # ========== 步驟 4：XOR 解密 ==========
+    secret_bits = xor_decrypt(encrypted_bits, contact_key)
+    
+    # ========== 步驟 5：將機密位元轉回原始內容 ==========
     # 修正：跳過類型標記（第 1 bit）
     if len(secret_bits) < 1:
         raise ValueError("提取的位元數不足，無法讀取類型標記")
@@ -148,7 +185,7 @@ def detect_and_extract(cover_image, z_bits, contact_key=None):
         讀取第 1 bit 類型標記來決定解碼方式
         類型標記: 0 = 文字, 1 = 圖片
     """
-    # 先提取所有 bits
+    # 先提取所有 bits（加密後的）
     cover_image = np.array(cover_image)
     
     if len(cover_image.shape) == 3:
@@ -162,7 +199,7 @@ def detect_and_extract(cover_image, z_bits, contact_key=None):
     num_rows = height // BLOCK_SIZE
     num_cols = width // BLOCK_SIZE
     
-    secret_bits = []
+    encrypted_bits = []  # ← 這是加密後的 bits
     z_bit_index = 0
     finished = False
     
@@ -185,8 +222,11 @@ def detect_and_extract(cover_image, z_bits, contact_key=None):
                 if z_bit_index >= len(z_bits):
                     finished = True
                     break
-                secret_bits.append(map_from_z(z_bits[z_bit_index], msbs[k]))
+                encrypted_bits.append(map_from_z(z_bits[z_bit_index], msbs[k]))
                 z_bit_index += 1
+    
+    # ========== XOR 解密 ==========
+    secret_bits = xor_decrypt(encrypted_bits, contact_key)
     
     # 檢查是否有足夠的 bits
     if len(secret_bits) < 1:
