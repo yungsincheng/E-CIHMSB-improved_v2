@@ -114,9 +114,20 @@ def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
         )
     
     # ========== 步驟 3：XOR 加密 ==========
-    # 只對 content_bits 加密，type_marker 不加密（確保選錯 key 時類型仍正確）
-    encrypted_content = xor_encrypt(content_bits, contact_key)
-    encrypted_bits = type_marker + encrypted_content  # type_marker 保持原樣
+    # type_marker 不加密（確保類型判斷正確）
+    # 如果是圖像，header (66 bits) 也不加密（確保尺寸正確），只加密像素資料
+    IMAGE_HEADER_SIZE = 66  # 圖像 header 固定 66 bits
+    
+    if secret_type == 'image' and len(content_bits) > IMAGE_HEADER_SIZE:
+        # 圖像：[type_marker] + [header 66 bits] + XOR([像素資料])
+        image_header = content_bits[:IMAGE_HEADER_SIZE]  # 寬、高、色彩模式等
+        pixel_data = content_bits[IMAGE_HEADER_SIZE:]    # 像素資料
+        encrypted_pixels = xor_encrypt(pixel_data, contact_key)
+        encrypted_bits = type_marker + image_header + encrypted_pixels
+    else:
+        # 文字：[type_marker] + XOR([content_bits])
+        encrypted_content = xor_encrypt(content_bits, contact_key)
+        encrypted_bits = type_marker + encrypted_content
     
     # ========== 步驟 4：對每個 8×8 區塊進行嵌入 ==========
     z_bits = []
