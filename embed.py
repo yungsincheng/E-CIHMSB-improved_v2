@@ -114,8 +114,9 @@ def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
         )
     
     # ========== 步驟 3：XOR 加密 ==========
-    # 用 contact_key 對 secret_bits 進行 XOR 加密
-    encrypted_bits = xor_encrypt(secret_bits, contact_key)
+    # 只對 content_bits 加密，type_marker 不加密（確保選錯 key 時類型仍正確）
+    encrypted_content = xor_encrypt(content_bits, contact_key)
+    encrypted_bits = type_marker + encrypted_content  # type_marker 保持原樣
     
     # ========== 步驟 4：對每個 8×8 區塊進行嵌入 ==========
     z_bits = []
