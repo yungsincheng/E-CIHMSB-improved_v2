@@ -1,6 +1,7 @@
-# embed.py → 嵌入模組（支援文字和圖片，含對象密鑰）
+# embed.py → 嵌入模組（支援文字和圖片，含對象密鑰 + XOR 加密）
 
 import numpy as np
+import hashlib
 
 from config import Q_LENGTH, TOTAL_AVERAGES_PER_UNIT, BLOCK_SIZE, calculate_capacity
 from permutation import generate_Q_from_block, apply_Q_three_rounds
@@ -8,6 +9,38 @@ from image_processing import calculate_hierarchical_averages
 from binary_operations import get_msbs
 from mapping import map_to_z
 from secret_encoding import text_to_binary, image_to_binary
+
+
+def xor_encrypt(bits, key):
+    """
+    用 contact_key 對 bits 進行 XOR 加密
+    
+    參數:
+        bits: 要加密的位元列表
+        key: 密鑰字串
+    
+    返回:
+        encrypted_bits: 加密後的位元列表
+    """
+    if not key:
+        return bits  # 沒有 key 就不加密
+    
+    # 用 key 生成足夠長的密鑰流
+    key_bits = []
+    key_hash = hashlib.sha256(key.encode()).digest()
+    
+    while len(key_bits) < len(bits):
+        for byte in key_hash:
+            key_bits.extend([int(b) for b in format(byte, '08b')])
+            if len(key_bits) >= len(bits):
+                break
+        # 重新 hash 以獲得更多 bits
+        key_hash = hashlib.sha256(key_hash).digest()
+    
+    # XOR 運算
+    encrypted_bits = [bits[i] ^ key_bits[i] for i in range(len(bits))]
+    return encrypted_bits
+
 
 def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
     """
@@ -28,7 +61,8 @@ def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
     流程:
         1. 圖片預處理（彩色轉灰階、檢查尺寸）
         2. 計算容量並檢查
-        3. 對每個 8×8 區塊進行嵌入（使用 contact_key 生成 Q）
+        3. XOR 加密（使用 contact_key）
+        4. 對每個 8×8 區塊進行嵌入（使用 contact_key 生成 Q）
     
     格式:
         [1 bit 類型標記] + [機密內容]
@@ -79,7 +113,11 @@ def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
             f"機密內容太大！需要 {len(secret_bits)} bits，但容量只有 {capacity} bits"
         )
     
-    # ========== 步驟 3：對每個 8×8 區塊進行嵌入 ==========
+    # ========== 步驟 3：XOR 加密 ==========
+    # 用 contact_key 對 secret_bits 進行 XOR 加密
+    encrypted_bits = xor_encrypt(secret_bits, contact_key)
+    
+    # ========== 步驟 4：對每個 8×8 區塊進行嵌入 ==========
     z_bits = []
     secret_bit_index = 0
     finished = False
@@ -89,37 +127,37 @@ def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
             break
         
         for j in range(num_cols):
-            # 檢查是否所有 secret_bits 已處理完
-            if secret_bit_index >= len(secret_bits):
+            # 檢查是否所有 encrypted_bits 已處理完
+            if secret_bit_index >= len(encrypted_bits):
                 finished = True
                 break
             
-            # 3.1 提取這個 8×8 區塊
+            # 4.1 提取這個 8×8 區塊
             start_row = i * BLOCK_SIZE
             end_row = start_row + BLOCK_SIZE
             start_col = j * BLOCK_SIZE
             end_col = start_col + BLOCK_SIZE
             block = cover_image[start_row:end_row, start_col:end_col]
             
-            # 3.2 生成這個區塊專屬的排列密鑰 Q（加入 contact_key）
+            # 4.2 生成這個區塊專屬的排列密鑰 Q（加入 contact_key）
             Q = generate_Q_from_block(block, Q_LENGTH, contact_key=contact_key)
             
-            # 3.3 計算 21 個多層次平均值
+            # 4.3 計算 21 個多層次平均值
             averages_21 = calculate_hierarchical_averages(block)
             
-            # 3.4 用 Q 重新排列 21 個平均值
+            # 4.4 用 Q 重新排列 21 個平均值
             reordered_averages = apply_Q_three_rounds(averages_21, Q)
             
-            # 3.5 提取排列後的 21 個 MSB
+            # 4.5 提取排列後的 21 個 MSB
             msbs = get_msbs(reordered_averages)
             
-            # 3.6 映射產生 Z 碼
+            # 4.6 映射產生 Z 碼（使用加密後的 bits）
             for k in range(TOTAL_AVERAGES_PER_UNIT):
-                if secret_bit_index >= len(secret_bits):
+                if secret_bit_index >= len(encrypted_bits):
                     finished = True
                     break
                 
-                secret_bit = secret_bits[secret_bit_index]
+                secret_bit = encrypted_bits[secret_bit_index]  # ← 使用加密後的 bit
                 msb = msbs[k]
                 z_bit = map_to_z(secret_bit, msb)
                 z_bits.append(z_bit)
