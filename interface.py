@@ -28,6 +28,27 @@ from embed import embed_secret
 from extract import detect_and_extract
 from secret_encoding import text_to_binary, image_to_binary, binary_to_image
 
+def is_likely_garbled_text(text):
+    """檢測文字是否可能是亂碼"""
+    if not text or len(text) == 0:
+        return True
+    
+    # 計算不可打印/控制字符的比例
+    garbled_count = 0
+    for char in text:
+        # 控制字符（除了換行、空格、Tab）
+        if ord(char) < 32 and char not in '\n\r\t':
+            garbled_count += 1
+        # 替換字符（UTF-8 解碼失敗時產生）
+        elif char == '\ufffd':
+            garbled_count += 1
+        # 私用區字符
+        elif 0xE000 <= ord(char) <= 0xF8FF:
+            garbled_count += 1
+    
+    # 如果超過 30% 是亂碼字符，認為是亂碼
+    return (garbled_count / len(text)) > 0.3
+    
 # ==================== 生成高質量圖片函數 ====================
 def generate_gradient_image(size, color1, color2, direction='horizontal'):
     img = Image.new('RGB', (size, size))
@@ -2414,10 +2435,9 @@ else:
         st.markdown('<div class="page-title-extract" style="text-align: center; margin-bottom: 30px;">提取結果</div>', unsafe_allow_html=True)
         
         if r['type'] == 'text':
-            # 文字驗證 - 三個水平區塊
-            col1, col2, col3 = st.columns([1.4, 1.2, 1.4])
+            is_garbled = r.get('is_garbled', False)
             
-            # 格式化函數：保留原始格式，只處理換行和特殊字符
+            # 格式化函數
             def format_text_display(text):
                 result = html.escape(text)
                 result = result.replace('\r\n', '<br>')
@@ -2425,120 +2445,50 @@ else:
                 result = result.replace('\r', '<br>')
                 return result
             
-            # 區塊1：提取完成
-            with col1:
-                st.markdown(f'<p style="font-size: 28px; font-weight: bold; color: #4f7343; margin-bottom: 15px;">提取完成！({r["elapsed_time"]:.2f} 秒)</p>', unsafe_allow_html=True)
-                st.markdown('<p style="font-size: 24px; font-weight: bold; color: #4f7343;">機密文字:</p>', unsafe_allow_html=True)
-                content_html = format_text_display(r["content"])
-                st.markdown(f'<p style="font-size: 20px; color: #4f7343; line-height: 1.8;">{content_html}</p>', unsafe_allow_html=True)
-            
-            # 區塊2：輸入區
-            with col2:
-                st.markdown('<p style="font-size: 24px; font-weight: bold; color: #443C3C;">驗證</p>', unsafe_allow_html=True)
-                verify_input = st.text_area("輸入原始機密", key="verify_text_input", height=180, placeholder="貼上嵌入時的原始機密內容...", label_visibility="collapsed")
-                verify_clicked = st.button("驗證", key="verify_btn")
-                if verify_clicked and verify_input:
-                    st.session_state.verify_result = {
-                        'input': verify_input,
-                        'match': verify_input == r['content']
-                    }
+            if is_garbled:
+                # ===== 亂碼情況：提取失敗 =====
+                col1, col2 = st.columns([1.5, 1])
                 
-                # 驗證按鈕樣式
-                components.html("""
-                <script>
-                function fixVerifyTextBtn() {
-                    const buttons = window.parent.document.querySelectorAll('button');
-                    for (let btn of buttons) { 
-                        if (btn.innerText === '驗證') {
-                            btn.style.setProperty('background-color', '#c9b89a', 'important');
-                            btn.style.setProperty('border-color', '#c9b89a', 'important');
-                            btn.style.setProperty('color', '#443C3C', 'important');
-                            btn.style.setProperty('font-size', '16px', 'important');
-                            btn.style.setProperty('font-weight', '700', 'important');
-                            btn.style.setProperty('padding', '4px 12px', 'important');
-                            btn.style.setProperty('min-width', '60px', 'important');
-                        }
-                    }
-                }
-                fixVerifyTextBtn();
-                setTimeout(fixVerifyTextBtn, 100);
-                setTimeout(fixVerifyTextBtn, 300);
-                </script>
-                """, height=0)
-            
-            # 區塊3：結果區
-            with col3:
-                st.markdown('<p style="font-size: 24px; font-weight: bold; color: #443C3C;">結果</p>', unsafe_allow_html=True)
-                if 'verify_result' in st.session_state and st.session_state.verify_result:
-                    vr = st.session_state.verify_result
-                    if vr['match']:
-                        st.markdown('<p style="font-size: 22px; font-weight: bold; color: #4f7343; margin-bottom: 10px;">完全一致！</p>', unsafe_allow_html=True)
-                    else:
-                        st.markdown('<p style="font-size: 22px; font-weight: bold; color: #C62828; margin-bottom: 10px;">不一致！</p>', unsafe_allow_html=True)
-                    
-                    # 對比結果 - 左右並排，逗號句號後換行
-                    input_html = format_text_display(vr["input"])
-                    result_html = format_text_display(r["content"])
-                    st.markdown(f'''
-                    <div style="display: flex; gap: 15px;">
-                        <div style="flex: 1;">
-                            <p style="font-size: 14px; font-weight: bold; color: #443C3C; margin-bottom: 5px;">原始輸入：</p>
-                            <p style="font-size: 12px; color: #666; line-height: 1.6;">{input_html}</p>
-                        </div>
-                        <div style="flex: 1;">
-                            <p style="font-size: 14px; font-weight: bold; color: #443C3C; margin-bottom: 5px;">提取結果：</p>
-                            <p style="font-size: 12px; color: #666; line-height: 1.6;">{result_html}</p>
-                        </div>
+                with col1:
+                    st.markdown(f'<p style="font-size: 28px; font-weight: bold; color: #C62828; margin-bottom: 15px;">提取失敗 ({r["elapsed_time"]:.2f} 秒)</p>', unsafe_allow_html=True)
+                    st.markdown('<p style="font-size: 24px; font-weight: bold; color: #C62828;">機密文字:</p>', unsafe_allow_html=True)
+                    display_text = r["content"][:100] + "..." if len(r["content"]) > 100 else r["content"]
+                    st.markdown(f'<p style="font-size: 18px; color: #666; line-height: 1.6; word-break: break-all;">{html.escape(display_text)}</p>', unsafe_allow_html=True)
+                
+                with col2:
+                    st.markdown('''
+                    <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 10px; padding: 20px; margin-top: 20px;">
+                        <p style="font-size: 24px; font-weight: bold; color: #856404; margin-bottom: 10px;">⚠️ 可能選錯對象</p>
+                        <p style="font-size: 20px; color: #856404; line-height: 1.6;">
+                            提取結果看起來像是亂碼。<br>
+                            請確認選擇的對象是否正確。
+                        </p>
                     </div>
                     ''', unsafe_allow_html=True)
-                else:
-                    st.markdown('<p style="font-size: 16px; color: #999; margin-top: 30px;">← 輸入原始機密後<br>按「驗證」查看結果</p>', unsafe_allow_html=True)
-        
-        else:
-            # 圖像驗證 - 保持原來的兩欄佈局
-            spacer_left, col_left, col_gap, col_right, spacer_right = st.columns([0.4, 2.5, 0.1, 2.2, 0.1])
-            with col_left:
-                st.markdown(f'<p style="font-size: 32px; font-weight: bold; color: #4f7343; margin-bottom: 25px;">提取完成！({r["elapsed_time"]:.2f} 秒)</p>', unsafe_allow_html=True)
-                st.markdown('<p style="font-size: 32px; font-weight: bold; color: #4f7343;">機密圖像:</p>', unsafe_allow_html=True)
-                st.image(Image.open(BytesIO(r['image_data'])), width=200)
-                st.download_button("下載圖像", r['image_data'], "recovered.png", "image/png", key="dl_rec")
             
-            with col_right:
-                st.markdown('<p style="font-size: 34px; font-weight: bold; color: #443C3C;">驗證結果</p>', unsafe_allow_html=True)
-                verify_img = st.file_uploader("上傳原始機密圖像", type=["png", "jpg", "jpeg"], key="verify_img_upload")
-                if verify_img:
-                    orig_img = Image.open(verify_img)
-                    extracted_img = Image.open(BytesIO(r['image_data']))
+            else:
+                # ===== 正常情況：提取成功 =====
+                col1, col2, col3 = st.columns([1.4, 1.2, 1.4])
+                
+                with col1:
+                    st.markdown(f'<p style="font-size: 28px; font-weight: bold; color: #4f7343; margin-bottom: 15px;">提取成功！({r["elapsed_time"]:.2f} 秒)</p>', unsafe_allow_html=True)
+                    st.markdown('<p style="font-size: 24px; font-weight: bold; color: #4f7343;">機密文字:</p>', unsafe_allow_html=True)
+                    content_html = format_text_display(r["content"])
+                    st.markdown(f'<p style="font-size: 20px; color: #4f7343; line-height: 1.8;">{content_html}</p>', unsafe_allow_html=True)
+                
+                with col2:
+                    st.markdown('<p style="font-size: 24px; font-weight: bold; color: #443C3C;">驗證</p>', unsafe_allow_html=True)
+                    verify_input = st.text_area("輸入原始機密", key="verify_text_input", height=180, placeholder="貼上嵌入時的原始機密內容...", label_visibility="collapsed")
+                    verify_clicked = st.button("驗證", key="verify_btn")
+                    if verify_clicked and verify_input:
+                        st.session_state.verify_result = {
+                            'input': verify_input,
+                            'match': verify_input == r['content']
+                        }
                     
-                    col_orig, col_ext = st.columns(2)
-                    with col_orig:
-                        st.markdown('<p style="font-size: 20px; font-weight: bold; color: #443C3C;">原始圖像</p>', unsafe_allow_html=True)
-                        st.image(orig_img, width=150)
-                    with col_ext:
-                        st.markdown('<p style="font-size: 20px; font-weight: bold; color: #443C3C;">提取結果</p>', unsafe_allow_html=True)
-                        st.image(extracted_img, width=150)
-                    
-                    if st.button("驗證", key="verify_img_btn"):
-                        orig_arr = np.array(orig_img.convert('RGB'))
-                        ext_arr = np.array(extracted_img.convert('RGB'))
-                        
-                        if orig_arr.shape == ext_arr.shape:
-                            mse = np.mean((orig_arr.astype(int) - ext_arr.astype(int)) ** 2)
-                            st.session_state.verify_img_result = {
-                                'mse': mse,
-                                'same_size': True
-                            }
-                        else:
-                            st.session_state.verify_img_result = {
-                                'same_size': False,
-                                'orig_size': orig_img.size,
-                                'ext_size': extracted_img.size
-                            }
-                    
-                    # 驗證按鈕樣式
                     components.html("""
                     <script>
-                    function fixVerifyImgBtn() {
+                    function fixVerifyTextBtn() {
                         const buttons = window.parent.document.querySelectorAll('button');
                         for (let btn of buttons) { 
                             if (btn.innerText === '驗證') {
@@ -2549,32 +2499,137 @@ else:
                                 btn.style.setProperty('font-weight', '700', 'important');
                                 btn.style.setProperty('padding', '4px 12px', 'important');
                                 btn.style.setProperty('min-width', '60px', 'important');
-                                // 內部文字也設定
-                                const span = btn.querySelector('span') || btn.querySelector('p');
-                                if (span) {
-                                    span.style.setProperty('font-size', '16px', 'important');
-                                    span.style.setProperty('font-weight', '700', 'important');
-                                }
                             }
                         }
                     }
-                    fixVerifyImgBtn();
-                    setTimeout(fixVerifyImgBtn, 100);
-                    setTimeout(fixVerifyImgBtn, 300);
-                    setTimeout(fixVerifyImgBtn, 500);
+                    fixVerifyTextBtn();
+                    setTimeout(fixVerifyTextBtn, 100);
+                    setTimeout(fixVerifyTextBtn, 300);
                     </script>
                     """, height=0)
-                    
-                    if 'verify_img_result' in st.session_state and st.session_state.verify_img_result:
-                        vr = st.session_state.verify_img_result
-                        if vr.get('same_size'):
-                            mse = vr['mse']
-                            if mse == 0:
-                                st.markdown(f'<p style="font-size: 16px; color: #4f7343;">MSE：{mse:.4f} - 完全一致！</p>', unsafe_allow_html=True)
-                            else:
-                                st.markdown(f'<p style="font-size: 16px; color: #F57C00;">MSE：{mse:.4f} - 圖像有差異</p>', unsafe_allow_html=True)
+                
+                with col3:
+                    st.markdown('<p style="font-size: 24px; font-weight: bold; color: #443C3C;">結果</p>', unsafe_allow_html=True)
+                    if 'verify_result' in st.session_state and st.session_state.verify_result:
+                        vr = st.session_state.verify_result
+                        if vr['match']:
+                            st.markdown('<p style="font-size: 22px; font-weight: bold; color: #4f7343; margin-bottom: 10px;">完全一致！</p>', unsafe_allow_html=True)
                         else:
-                            st.markdown(f'<p style="font-size: 16px; color: #C62828;">尺寸不同，無法比較<br>原始：{vr["orig_size"][0]}×{vr["orig_size"][1]} vs 提取：{vr["ext_size"][0]}×{vr["ext_size"][1]}</p>', unsafe_allow_html=True)
+                            st.markdown('<p style="font-size: 22px; font-weight: bold; color: #C62828; margin-bottom: 10px;">不一致！</p>', unsafe_allow_html=True)
+                        
+                        input_html = format_text_display(vr["input"])
+                        result_html = format_text_display(r["content"])
+                        st.markdown(f'''
+                        <div style="display: flex; gap: 15px;">
+                            <div style="flex: 1;">
+                                <p style="font-size: 14px; font-weight: bold; color: #443C3C; margin-bottom: 5px;">原始輸入：</p>
+                                <p style="font-size: 12px; color: #666; line-height: 1.6;">{input_html}</p>
+                            </div>
+                            <div style="flex: 1;">
+                                <p style="font-size: 14px; font-weight: bold; color: #443C3C; margin-bottom: 5px;">提取結果：</p>
+                                <p style="font-size: 12px; color: #666; line-height: 1.6;">{result_html}</p>
+                            </div>
+                        </div>
+                        ''', unsafe_allow_html=True)
+                    else:
+                        st.markdown('<p style="font-size: 16px; color: #999; margin-top: 30px;">← 輸入原始機密後<br>按「驗證」查看結果</p>', unsafe_allow_html=True)
+        
+        else:
+            is_garbled = r.get('is_garbled', False)
+            
+            if is_garbled:
+                # ===== 亂碼情況：提取失敗 =====
+                col1, col2 = st.columns([1.5, 1])
+                
+                with col1:
+                    st.markdown(f'<p style="font-size: 28px; font-weight: bold; color: #C62828; margin-bottom: 15px;">提取失敗 ({r["elapsed_time"]:.2f} 秒)</p>', unsafe_allow_html=True)
+                    st.markdown('<p style="font-size: 24px; font-weight: bold; color: #C62828;">機密圖像:</p>', unsafe_allow_html=True)
+                    st.image(Image.open(BytesIO(r['image_data'])), width=200)
+                
+                with col2:
+                    st.markdown('''
+                    <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 10px; padding: 20px; margin-top: 20px;">
+                        <p style="font-size: 24px; font-weight: bold; color: #856404; margin-bottom: 10px;">⚠️ 可能選錯對象</p>
+                        <p style="font-size: 20px; color: #856404; line-height: 1.6;">
+                            提取結果看起來像是亂碼圖像。<br>
+                            請確認選擇的對象是否正確。
+                        </p>
+                    </div>
+                    ''', unsafe_allow_html=True)
+            
+            else:
+                # ===== 正常情況：提取成功 =====
+                spacer_left, col_left, col_gap, col_right, spacer_right = st.columns([0.4, 2.5, 0.1, 2.2, 0.1])
+                with col_left:
+                    st.markdown(f'<p style="font-size: 32px; font-weight: bold; color: #4f7343; margin-bottom: 25px;">提取成功！({r["elapsed_time"]:.2f} 秒)</p>', unsafe_allow_html=True)
+                    st.markdown('<p style="font-size: 32px; font-weight: bold; color: #4f7343;">機密圖像:</p>', unsafe_allow_html=True)
+                    st.image(Image.open(BytesIO(r['image_data'])), width=200)
+                    st.download_button("下載圖像", r['image_data'], "recovered.png", "image/png", key="dl_rec")
+                
+                with col_right:
+                    st.markdown('<p style="font-size: 34px; font-weight: bold; color: #443C3C;">驗證結果</p>', unsafe_allow_html=True)
+                    verify_img = st.file_uploader("上傳原始機密圖像", type=["png", "jpg", "jpeg"], key="verify_img_upload")
+                    if verify_img:
+                        orig_img = Image.open(verify_img)
+                        extracted_img = Image.open(BytesIO(r['image_data']))
+                        
+                        col_orig, col_ext = st.columns(2)
+                        with col_orig:
+                            st.markdown('<p style="font-size: 20px; font-weight: bold; color: #443C3C;">原始圖像</p>', unsafe_allow_html=True)
+                            st.image(orig_img, width=150)
+                        with col_ext:
+                            st.markdown('<p style="font-size: 20px; font-weight: bold; color: #443C3C;">提取結果</p>', unsafe_allow_html=True)
+                            st.image(extracted_img, width=150)
+                        
+                        if st.button("驗證", key="verify_img_btn"):
+                            orig_arr = np.array(orig_img.convert('RGB'))
+                            ext_arr = np.array(extracted_img.convert('RGB'))
+                            
+                            if orig_arr.shape == ext_arr.shape:
+                                mse = np.mean((orig_arr.astype(int) - ext_arr.astype(int)) ** 2)
+                                st.session_state.verify_img_result = {
+                                    'mse': mse,
+                                    'same_size': True
+                                }
+                            else:
+                                st.session_state.verify_img_result = {
+                                    'same_size': False,
+                                    'orig_size': orig_img.size,
+                                    'ext_size': extracted_img.size
+                                }
+                        
+                        components.html("""
+                        <script>
+                        function fixVerifyImgBtn() {
+                            const buttons = window.parent.document.querySelectorAll('button');
+                            for (let btn of buttons) { 
+                                if (btn.innerText === '驗證') {
+                                    btn.style.setProperty('background-color', '#c9b89a', 'important');
+                                    btn.style.setProperty('border-color', '#c9b89a', 'important');
+                                    btn.style.setProperty('color', '#443C3C', 'important');
+                                    btn.style.setProperty('font-size', '16px', 'important');
+                                    btn.style.setProperty('font-weight', '700', 'important');
+                                    btn.style.setProperty('padding', '4px 12px', 'important');
+                                    btn.style.setProperty('min-width', '60px', 'important');
+                                }
+                            }
+                        }
+                        fixVerifyImgBtn();
+                        setTimeout(fixVerifyImgBtn, 100);
+                        setTimeout(fixVerifyImgBtn, 300);
+                        </script>
+                        """, height=0)
+                        
+                        if 'verify_img_result' in st.session_state and st.session_state.verify_img_result:
+                            vr = st.session_state.verify_img_result
+                            if vr.get('same_size'):
+                                mse = vr['mse']
+                                if mse == 0:
+                                    st.markdown(f'<p style="font-size: 16px; color: #4f7343;">MSE：{mse:.4f} - 完全一致！</p>', unsafe_allow_html=True)
+                                else:
+                                    st.markdown(f'<p style="font-size: 16px; color: #F57C00;">MSE：{mse:.4f} - 圖像有差異</p>', unsafe_allow_html=True)
+                            else:
+                                st.markdown(f'<p style="font-size: 16px; color: #C62828;">尺寸不同，無法比較<br>原始：{vr["orig_size"][0]}×{vr["orig_size"][1]} vs 提取：{vr["ext_size"][0]}×{vr["ext_size"][1]}</p>', unsafe_allow_html=True)
         
         # 返回首頁按鈕 - 固定在底部中央
         _, btn_col, _ = st.columns([1, 1, 1])
@@ -2907,11 +2962,26 @@ else:
                             processing_placeholder.empty()
                             
                             if secret_type == 'text':
-                                st.session_state.extract_result = {'success': True, 'type': 'text', 'elapsed_time': time.time()-start, 'content': secret}
+                                is_garbled = is_likely_garbled_text(secret)
+                                st.session_state.extract_result = {
+                                    'success': True, 
+                                    'type': 'text', 
+                                    'elapsed_time': time.time()-start, 
+                                    'content': secret,
+                                    'is_garbled': is_garbled
+                                }
+                                
                             else:
                                 buf = BytesIO()
                                 secret.save(buf, format='PNG')
-                                st.session_state.extract_result = {'success': True, 'type': 'image', 'elapsed_time': time.time()-start, 'image_data': buf.getvalue()}
+                                is_garbled = 'error' in info
+                                st.session_state.extract_result = {
+                                    'success': True, 
+                                    'type': 'image', 
+                                    'elapsed_time': time.time()-start, 
+                                    'image_data': buf.getvalue(),
+                                    'is_garbled': is_garbled
+                                }
                             
                             for key in ['extract_contact_saved']:
                                 if key in st.session_state:
