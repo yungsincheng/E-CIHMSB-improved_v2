@@ -1,0 +1,7 @@
+streamlit
+pillow
+numpy
+requests
+qrcode
+pyzbar
+supabase
