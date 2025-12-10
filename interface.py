@@ -33,6 +33,7 @@ def is_likely_garbled_text(text):
     if not text or len(text) == 0:
         return True
     
+    # 方法1：計算不可打印/控制字符的比例
     garbled_count = 0
     for char in text:
         if ord(char) < 32 and char not in '\n\r\t':
@@ -42,7 +43,36 @@ def is_likely_garbled_text(text):
         elif 0xE000 <= ord(char) <= 0xF8FF:
             garbled_count += 1
     
-    return (garbled_count / len(text)) > 0.3
+    if len(text) > 0 and (garbled_count / len(text)) > 0.3:
+        return True
+    
+    # 方法2：計算特殊符號的比例（亂碼通常有很多符號）
+    symbol_count = 0
+    for char in text:
+        # 特殊符號（排除常見標點）
+        if char in '{}[]|\\<>=`~^':
+            symbol_count += 1
+        # 非 ASCII 且非中日韓文字
+        elif ord(char) > 127:
+            # 檢查是否為常見中文範圍
+            if not (0x4E00 <= ord(char) <= 0x9FFF):  # CJK 統一漢字
+                if not (0x3000 <= ord(char) <= 0x303F):  # CJK 標點
+                    if not (0xFF00 <= ord(char) <= 0xFFEF):  # 全形字符
+                        symbol_count += 1
+    
+    if len(text) > 0 and (symbol_count / len(text)) > 0.2:
+        return True
+    
+    # 方法3：檢查是否有連續的隨機 ASCII（沒有空格分隔的長字串）
+    # 正常英文會有空格，亂碼通常沒有
+    words = text.split()
+    if len(words) > 0:
+        avg_word_len = sum(len(w) for w in words) / len(words)
+        # 如果平均「單詞」長度超過 15，可能是亂碼
+        if avg_word_len > 15:
+            return True
+    
+    return False
 
 
 def is_likely_garbled_image(image_data):
