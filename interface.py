@@ -2554,7 +2554,7 @@ else:
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
                     <p style="font-size: 28px; font-weight: bold; color: #C62828; margin-bottom: 15px;">提取失敗 ({r["elapsed_time"]:.2f} 秒)</p>
                     <p style="font-size: 24px; font-weight: bold; color: #C62828;">機密圖像:</p>
-                    <img src="data:image/png;base64,{img_b64}" style="width: 200px; border-radius: 8px; margin-top: 10px;">
+                    <img src="data:image/png;base64,{img_b64}" style="width: 300px; height: auto; border-radius: 8px; margin-top: 10px;">
                 </div>
                 ''', unsafe_allow_html=True)
             
