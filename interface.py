@@ -2467,14 +2467,14 @@ else:
                 return result
             
             if is_garbled:
-                # ===== 亂碼情況：提取失敗 =====
-                col1, col2 = st.columns([1.5, 1])
+                # ===== 亂碼情況：提取失敗（置中）=====
+                spacer1, center_col, spacer2 = st.columns([1, 2, 1])
                 
-                with col1:
-                    st.markdown(f'<p style="font-size: 28px; font-weight: bold; color: #C62828; margin-bottom: 15px;">提取失敗 ({r["elapsed_time"]:.2f} 秒)</p>', unsafe_allow_html=True)
-                    st.markdown('<p style="font-size: 24px; font-weight: bold; color: #C62828;">機密文字:</p>', unsafe_allow_html=True)
+                with center_col:
+                    st.markdown(f'<p style="font-size: 28px; font-weight: bold; color: #C62828; margin-bottom: 15px; text-align: center;">提取失敗 ({r["elapsed_time"]:.2f} 秒)</p>', unsafe_allow_html=True)
+                    st.markdown('<p style="font-size: 24px; font-weight: bold; color: #C62828; text-align: center;">機密文字:</p>', unsafe_allow_html=True)
                     display_text = r["content"][:100] + "..." if len(r["content"]) > 100 else r["content"]
-                    st.markdown(f'<p style="font-size: 18px; color: #666; line-height: 1.6; word-break: break-all;">{html.escape(display_text)}</p>', unsafe_allow_html=True)
+                    st.markdown(f'<p style="font-size: 18px; color: #666; line-height: 1.6; word-break: break-all; text-align: center;">{html.escape(display_text)}</p>', unsafe_allow_html=True)
             
             else:
                 # ===== 正常情況：提取成功 =====
@@ -2548,12 +2548,12 @@ else:
             is_garbled = r.get('is_garbled', False)
             
             if is_garbled:
-                # ===== 亂碼情況：提取失敗 =====
-                col1, col2 = st.columns([1.5, 1])
+                # ===== 亂碼情況：提取失敗（置中）=====
+                spacer1, center_col, spacer2 = st.columns([1, 2, 1])
                 
-                with col1:
-                    st.markdown(f'<p style="font-size: 28px; font-weight: bold; color: #C62828; margin-bottom: 15px;">提取失敗 ({r["elapsed_time"]:.2f} 秒)</p>', unsafe_allow_html=True)
-                    st.markdown('<p style="font-size: 24px; font-weight: bold; color: #C62828;">機密圖像:</p>', unsafe_allow_html=True)
+                with center_col:
+                    st.markdown(f'<p style="font-size: 28px; font-weight: bold; color: #C62828; margin-bottom: 15px; text-align: center;">提取失敗 ({r["elapsed_time"]:.2f} 秒)</p>', unsafe_allow_html=True)
+                    st.markdown('<p style="font-size: 24px; font-weight: bold; color: #C62828; text-align: center;">機密圖像:</p>', unsafe_allow_html=True)
                     st.image(Image.open(BytesIO(r['image_data'])), width=200)
             
             else:
