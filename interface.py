@@ -2544,10 +2544,10 @@ else:
                     else:
                         st.markdown('<p style="font-size: 16px; color: #999; margin-top: 30px;">← 輸入原始機密後<br>按「驗證」查看結果</p>', unsafe_allow_html=True)
         
-        else:
+       else:
             is_garbled = r.get('is_garbled', False)
             
-           if is_garbled:
+            if is_garbled:
                 # ===== 亂碼情況：提取失敗（置中）=====
                 st.markdown(f'''
                 <div style="text-align: center;">
