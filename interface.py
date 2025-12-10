@@ -2642,7 +2642,7 @@ else:
                             if vr.get('same_size'):
                                 mse = vr['mse']
                                 if mse == 0:
-                                    st.markdown(f'<p style="font-size: 16px; color: #4f7343;">MSE：{mse:.4f} - 完全一致！</p>', unsafe_allow_html=True)
+                                    st.markdown(f'<p style="font-size: 16px; color: #4f7343;">完全一致！</p>', unsafe_allow_html=True)
                                 else:
                                     st.markdown(f'<p style="font-size: 16px; color: #F57C00;">MSE：{mse:.4f} - 圖像有差異</p>', unsafe_allow_html=True)
                             else:
