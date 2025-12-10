@@ -2481,7 +2481,7 @@ else:
                     <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 10px; padding: 20px; margin-top: 20px;">
                         <p style="font-size: 24px; font-weight: bold; color: #856404; margin-bottom: 10px;">⚠️ 可能選錯對象</p>
                         <p style="font-size: 20px; color: #856404; line-height: 1.6;">
-                            提取結果看起來像是亂碼。<br>
+                            提取結果是亂碼。<br>
                             請確認選擇的對象是否正確。
                         </p>
                     </div>
