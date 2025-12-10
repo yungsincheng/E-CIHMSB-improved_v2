@@ -2555,7 +2555,7 @@ else:
                     <p style="font-size: 24px; font-weight: bold; color: #C62828; margin-bottom: 10px;">機密圖像:</p>
                 </div>
                 ''', unsafe_allow_html=True)
-                _, img_col, _ = st.columns([1.4, 0.6, 1.2])
+                _, img_col, _ = st.columns([1.3, 0.6, 1.2])
                 with img_col:
                     st.image(Image.open(BytesIO(r['image_data'])), width=200)
             
