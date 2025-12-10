@@ -2281,11 +2281,11 @@ elif st.session_state.current_mode == 'embed':
                             <img src="https://images.pexels.com/photos/{selected_image["id"]}/pexels-photo-{selected_image["id"]}.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop" 
                                  style="width: 200px; height: 200px; object-fit: cover; border-radius: 8px;">
                         </div>
-                        <div style="color: {info_color}; font-size: 28px; font-weight: bold; line-height: 1.8; white-space: nowrap;">
+                        <div style="color: {info_color}; font-size: 22px; font-weight: bold; line-height: 1.8; white-space: nowrap;">
                             機密大小：{secret_bits_needed:,} bits<br>
                             圖像容量：{capacity:,} bits<br>
                             使用率：{usage:.1f}%
-                            {"<br>❌ 容量不足！" if not capacity_ok else ""}
+                            {"<br>容量不足！" if not capacity_ok else ""}
                         </div>
                     </div>
                     ''', unsafe_allow_html=True)
