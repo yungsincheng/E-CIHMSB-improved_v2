@@ -2270,6 +2270,10 @@ elif st.session_state.current_mode == 'embed':
                     # 載體圖和容量信息並排（水平對齊）
                     capacity = calculate_image_capacity(selected_size)
                     usage = secret_bits_needed / capacity * 100
+                    capacity_ok = secret_bits_needed <= capacity
+                    
+                    # 根據容量是否足夠顯示不同顏色
+                    info_color = "#4f7343" if capacity_ok else "#C62828"
                     
                     st.markdown(f'''
                     <div style="display: flex; align-items: center; gap: 25px; margin-top: 10px;">
@@ -2277,13 +2281,17 @@ elif st.session_state.current_mode == 'embed':
                             <img src="https://images.pexels.com/photos/{selected_image["id"]}/pexels-photo-{selected_image["id"]}.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop" 
                                  style="width: 200px; height: 200px; object-fit: cover; border-radius: 8px;">
                         </div>
-                        <div style="color: #4f7343; font-size: 28px; font-weight: bold; line-height: 1.8; white-space: nowrap;">
+                        <div style="color: {info_color}; font-size: 28px; font-weight: bold; line-height: 1.8; white-space: nowrap;">
                             機密大小：{secret_bits_needed:,} bits<br>
                             圖像容量：{capacity:,} bits<br>
                             使用率：{usage:.1f}%
+                            {"<br>❌ 容量不足！" if not capacity_ok else ""}
                         </div>
                     </div>
                     ''', unsafe_allow_html=True)
+                    
+                    # 儲存容量檢查結果
+                    st.session_state.embed_capacity_ok = capacity_ok
                     
                     st.session_state.embed_image_id = selected_image["id"]
                     st.session_state.embed_image_size = selected_size
@@ -2305,7 +2313,7 @@ elif st.session_state.current_mode == 'embed':
             st.rerun()
         
         # ===== 開始嵌入按鈕 =====
-        all_done = step1_done and step2_done and st.session_state.get('embed_image_id')
+        all_done = step1_done and step2_done and st.session_state.get('embed_image_id') and st.session_state.get('embed_capacity_ok', False)
         
         if all_done:
             btn_col1, btn_col2, btn_col3 = st.columns([1, 0.5, 1])
