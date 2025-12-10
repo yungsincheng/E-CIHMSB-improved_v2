@@ -805,7 +805,7 @@ div.hint-text {
 
 /* bits 資訊專用樣式 */
 .bits-info {
-    font-size: 28px !important;
+    font-size: 24px !important;
     color: #4f7343 !important;
     font-weight: bold !important;
 }
