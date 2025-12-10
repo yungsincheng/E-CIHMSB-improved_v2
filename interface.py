@@ -33,21 +33,34 @@ def is_likely_garbled_text(text):
     if not text or len(text) == 0:
         return True
     
-    # 計算不可打印/控制字符的比例
     garbled_count = 0
     for char in text:
-        # 控制字符（除了換行、空格、Tab）
         if ord(char) < 32 and char not in '\n\r\t':
             garbled_count += 1
-        # 替換字符（UTF-8 解碼失敗時產生）
         elif char == '\ufffd':
             garbled_count += 1
-        # 私用區字符
         elif 0xE000 <= ord(char) <= 0xF8FF:
             garbled_count += 1
     
-    # 如果超過 30% 是亂碼字符，認為是亂碼
     return (garbled_count / len(text)) > 0.3
+
+
+def is_likely_garbled_image(image_data):
+    """檢測圖像是否可能是亂碼（雜訊圖）"""
+    try:
+        img = Image.open(BytesIO(image_data))
+        img_array = np.array(img.convert('RGB'))
+        
+        # 計算相鄰像素的差異
+        h_diff = np.abs(img_array[:, 1:, :].astype(int) - img_array[:, :-1, :].astype(int))
+        v_diff = np.abs(img_array[1:, :, :].astype(int) - img_array[:-1, :, :].astype(int))
+        
+        avg_diff = (np.mean(h_diff) + np.mean(v_diff)) / 2
+        
+        # 正常圖片的平均差異通常 < 30，亂碼圖 > 60
+        return avg_diff > 50
+    except:
+        return True
     
 # ==================== 生成高質量圖片函數 ====================
 def generate_gradient_image(size, color1, color2, direction='horizontal'):
@@ -2974,7 +2987,7 @@ else:
                             else:
                                 buf = BytesIO()
                                 secret.save(buf, format='PNG')
-                                is_garbled = 'error' in info
+                                is_garbled = 'error' in info or is_likely_garbled_image(buf.getvalue())
                                 st.session_state.extract_result = {
                                     'success': True, 
                                     'type': 'image', 
