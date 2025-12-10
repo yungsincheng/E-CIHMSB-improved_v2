@@ -2475,17 +2475,6 @@ else:
                     st.markdown('<p style="font-size: 24px; font-weight: bold; color: #C62828;">機密文字:</p>', unsafe_allow_html=True)
                     display_text = r["content"][:100] + "..." if len(r["content"]) > 100 else r["content"]
                     st.markdown(f'<p style="font-size: 18px; color: #666; line-height: 1.6; word-break: break-all;">{html.escape(display_text)}</p>', unsafe_allow_html=True)
-                
-                with col2:
-                    st.markdown('''
-                    <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 10px; padding: 20px; margin-top: 20px;">
-                        <p style="font-size: 24px; font-weight: bold; color: #856404; margin-bottom: 10px;">⚠️ 可能選錯對象</p>
-                        <p style="font-size: 20px; color: #856404; line-height: 1.6;">
-                            提取結果是亂碼。<br>
-                            請確認選擇的對象是否正確。
-                        </p>
-                    </div>
-                    ''', unsafe_allow_html=True)
             
             else:
                 # ===== 正常情況：提取成功 =====
@@ -2566,17 +2555,6 @@ else:
                     st.markdown(f'<p style="font-size: 28px; font-weight: bold; color: #C62828; margin-bottom: 15px;">提取失敗 ({r["elapsed_time"]:.2f} 秒)</p>', unsafe_allow_html=True)
                     st.markdown('<p style="font-size: 24px; font-weight: bold; color: #C62828;">機密圖像:</p>', unsafe_allow_html=True)
                     st.image(Image.open(BytesIO(r['image_data'])), width=200)
-                
-                with col2:
-                    st.markdown('''
-                    <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 10px; padding: 20px; margin-top: 20px;">
-                        <p style="font-size: 24px; font-weight: bold; color: #856404; margin-bottom: 10px;">⚠️ 可能選錯對象</p>
-                        <p style="font-size: 20px; color: #856404; line-height: 1.6;">
-                            提取結果是亂碼圖像。<br>
-                            請確認選擇的對象是否正確。
-                        </p>
-                    </div>
-                    ''', unsafe_allow_html=True)
             
             else:
                 # ===== 正常情況：提取成功 =====
