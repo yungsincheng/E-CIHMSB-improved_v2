@@ -2547,7 +2547,7 @@ else:
         else:
             is_garbled = r.get('is_garbled', False)
             
-            if is_garbled:
+           if is_garbled:
                 # ===== 亂碼情況：提取失敗（置中）=====
                 st.markdown(f'''
                 <div style="text-align: center;">
@@ -2555,7 +2555,7 @@ else:
                     <p style="font-size: 24px; font-weight: bold; color: #C62828; margin-bottom: 10px;">機密圖像:</p>
                 </div>
                 ''', unsafe_allow_html=True)
-                _, img_col, _ = st.columns([1, 1, 1])
+                _, img_col, _ = st.columns([1.2, 0.6, 1.2])
                 with img_col:
                     st.image(Image.open(BytesIO(r['image_data'])), width=200)
             
