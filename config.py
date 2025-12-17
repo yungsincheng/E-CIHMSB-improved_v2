@@ -55,7 +55,7 @@ TEST_IMAGE = [
 
 TEST_SECRET = "H"  # 測試機密內容
 
-# 容量計算
+# 載體容量計算
 def calculate_capacity(image_width, image_height):
     """
     功能:
