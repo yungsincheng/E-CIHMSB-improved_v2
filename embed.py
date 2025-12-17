@@ -101,7 +101,7 @@ def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
         info = {'type': 'text', 'length': len(secret), 'bits': len(content_bits) + 1}
     else:
         type_marker = [1]  # 1 = 圖片
-        content_bits, orig_size, mode = image_to_binary(secret, capacity - 1)  # 預留 1 bit 給類型標記
+        content_bits, orig_size, mode = image_to_binary(secret)  # 預留 1 bit 給類型標記
         info = {'type': 'image', 'size': orig_size, 'mode': mode, 'bits': len(content_bits) + 1}
     
     # 2.4 組合完整的 secret_bits
