@@ -1,12 +1,11 @@
 # 建立 secret_encoding.py → 機密內容編碼模組
-# 處理文字和圖片的二進位轉換
+# 處理文字和圖像的二進位轉換
 
 import numpy as np
 import math
 from PIL import Image
 
-# ==================== 文字編碼 ====================
-
+# 文字編碼
 def text_to_binary(text):
     """
     功能:
@@ -19,11 +18,12 @@ def text_to_binary(text):
         bits: 二進位列表
     """
     bits = []
+    
     for byte in text.encode('utf-8'):
         for b in format(byte, '08b'):
             bits.append(int(b))
+            
     return bits
-
 
 def binary_to_text(binary):
     """
@@ -37,20 +37,20 @@ def binary_to_text(binary):
         text: 解碼後的文字
     """
     byte_list = []
+    
     for i in range(0, len(binary), 8):
         byte = binary[i:i+8]
         if len(byte) == 8:
             byte_value = int(''.join(map(str, byte)), 2)
             byte_list.append(byte_value)
+            
     return bytes(byte_list).decode('utf-8', errors='ignore')
 
-
-# ==================== 圖片編碼 ====================
-
+# 圖像編碼
 def image_to_binary(image, capacity=None):
     """
     功能:
-        將圖片轉成二進位列表（含 header）
+        將圖像轉成二進位列表（含 header）
     
     參數:
         image: PIL Image 物件
@@ -72,7 +72,7 @@ def image_to_binary(image, capacity=None):
     orig_size = image.size
     mode = image.mode
     
-    # 判斷是否為彩色圖片
+    # 判斷是否為彩色圖像
     is_color = mode not in ['L', '1', 'LA']
     
     # 判斷是否有透明通道
@@ -113,7 +113,7 @@ def image_to_binary(image, capacity=None):
         bpp = 8
     
     header_bits = 66  # 固定 66 bits
-    capacity = capacity or 86016  # 預設 512×512 圖片的容量
+    capacity = capacity or 86016  # 預設 512×512 圖像的容量
     
     # 計算是否需要縮放
     max_pixels = (capacity - header_bits) // bpp
@@ -127,7 +127,7 @@ def image_to_binary(image, capacity=None):
         new_h = max(8, (int(orig_size[1] * ratio) // 8) * 8)
         new_size = (new_w, new_h)
     
-    # 縮放圖片
+    # 縮放圖像
     image = image.resize(new_size, Image.Resampling.LANCZOS)
     
     # 加入縮放後尺寸（32 bits）
@@ -143,6 +143,7 @@ def image_to_binary(image, capacity=None):
             for v in px[:channels]:
                 for b in format(v, '08b'):
                     binary.append(int(b))
+                    
     else:
         for px in list(image.getdata()):
             for b in format(px, '08b'):
@@ -150,11 +151,10 @@ def image_to_binary(image, capacity=None):
     
     return binary, orig_size, mode
 
-
 def binary_to_image(binary):
     """
     功能:
-        將二進位列表轉回圖片
+        將二進位列表轉回圖像
     
     參數:
         binary: 二進位列表
@@ -178,7 +178,7 @@ def binary_to_image(binary):
         idx += 32
         
         if is_color:
-            # 彩色圖片
+            # 彩色圖像
             pixels = []
             for _ in range(sw * sh):
                 if has_alpha and idx + 32 <= len(binary):
@@ -198,8 +198,9 @@ def binary_to_image(binary):
             
             img = Image.new('RGBA' if has_alpha else 'RGB', (sw, sh))
             img.putdata(pixels[:sw*sh])
+            
         else:
-            # 灰階圖片
+            # 灰階圖像
             pixels = []
             for i in range(sw * sh):
                 if idx + (i+1) * 8 <= len(binary):
