@@ -9,7 +9,7 @@ from config import NUM_LAYER1_BLOCKS, NUM_LAYER2_BLOCKS, NUM_LAYER3_BLOCKS
 from config import calculate_capacity
 from binary_operations import int_to_binary, binary_to_int, get_msbs, text_to_utf8, utf8_to_text
 from permutation import generate_Q_from_block, apply_permutation, apply_Q_three_rounds
-from image_processing import calculate_hierarchical_averages, process_image_multilayer
+from image_processing import calculate_hierarchical_averages
 from mapping import map_to_z, map_from_z
 from embed import embed_secret
 from extract import extract_secret
