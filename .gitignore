@@ -1,0 +1,12 @@
+# Python 快取
+__pycache__/
+*.pyc
+
+# Jupyter 暫存
+.ipynb_checkpoints/
+
+# 執行時產生的資料
+contacts.json
+
+# VS Code 開發容器
+.devcontainer/
