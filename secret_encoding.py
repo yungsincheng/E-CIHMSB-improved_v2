@@ -1,4 +1,3 @@
-
 # 建立 secret_encoding.py → 機密內容編碼模組
 # 處理文字和圖片的二進位轉換
 
@@ -6,7 +5,8 @@ import numpy as np
 import math
 from PIL import Image
 
-# 文字編碼
+# ==================== 文字編碼 ====================
+
 def text_to_binary(text):
     """
     功能:
@@ -43,7 +43,8 @@ def binary_to_text(binary):
             byte_list.append(byte_value)
     return bytes(byte_list).decode('utf-8', errors='ignore')
 
-# 圖片編碼
+# ==================== 圖片編碼 ====================
+
 def image_to_binary(image, capacity=None):
     """
     功能:
@@ -212,66 +213,3 @@ def binary_to_image(binary):
     
     except Exception as e:
         return None, None, None
-
-def encode_secret(secret, secret_type='text', capacity=None):
-    """
-    功能:
-        將機密內容（文字或圖片）編碼成二進位
-    
-    參數:
-        secret: 機密內容（字串或 PIL Image）
-        secret_type: 'text' 或 'image'
-        capacity: 可用容量（僅圖片需要）
-    
-    返回:
-        binary: 二進位列表
-        info: 額外資訊（文字長度或圖片尺寸）
-    """
-    if secret_type == 'text':
-        binary = text_to_binary(secret)
-        info = {'type': 'text', 'length': len(secret)}
-    else:
-        binary, orig_size, mode = image_to_binary(secret, capacity)
-        info = {'type': 'image', 'size': orig_size, 'mode': mode}
-    
-    return binary, info
-
-# 通用編碼
-def decode_secret(binary, secret_type='text'):
-    """
-    功能:
-        將二進位解碼成機密內容
-    
-    參數:
-        binary: 二進位列表
-        secret_type: 'text' 或 'image'
-    
-    返回:
-        secret: 解碼後的內容
-        info: 額外資訊
-    """
-    if secret_type == 'text':
-        text = binary_to_text(binary)
-        return text, {'type': 'text', 'length': len(text)}
-    else:
-        img, orig_size, is_color = binary_to_image(binary)
-        return img, {'type': 'image', 'size': orig_size, 'is_color': is_color}
-
-def calculate_required_bits(secret, secret_type='text', capacity=None):
-    """
-    功能:
-        計算機密內容所需的 bits 數量
-    
-    參數:
-        secret: 機密內容
-        secret_type: 'text' 或 'image'
-        capacity: 可用容量（僅圖片需要）
-    
-    返回:
-        bits: 所需 bits 數量
-    """
-    if secret_type == 'text':
-        return len(secret.encode('utf-8')) * 8
-    else:
-        binary, _, _ = image_to_binary(secret, capacity)
-        return len(binary)
