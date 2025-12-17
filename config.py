@@ -4,7 +4,7 @@
 PROJECT_NAME = 'E-CIHMSB Steganography'
 VERSION = '2.0.0'
 
-# 圖像參數
+# 區塊處理參數
 BLOCK_SIZE = 8  # 固定使用 8×8 作為處理區塊
 LAYER1_FRAGMENT_SIZE = 2  # 第一層區塊大小: 2×2
 LAYER2_FRAGMENT_SIZE = 4  # 第二層區塊大小: 4×4 (對第一層平均值分組)
@@ -59,11 +59,11 @@ TEST_SECRET = "H"  # 測試機密內容
 def calculate_capacity(image_width, image_height):
     """
     功能:
-        計算圖像的嵌入容量
+        計算載體圖像的嵌入容量（可藏多少 bits 的機密）
     
     參數:
-        image_width: 圖像寬度
-        image_height: 圖像高度
+        image_width: 載體圖像寬度
+        image_height: 載體圖像高度
     
     返回:
         capacity: 可嵌入的 bits 數量
