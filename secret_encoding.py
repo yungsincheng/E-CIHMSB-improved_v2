@@ -160,8 +160,8 @@ def binary_to_image(binary):
                     idx += 32   # 移動到下一個像素
                 elif idx + 24 <= len(binary):   # RGB: 每像素 24 bits
                     pixel = tuple(
-                        int(''.join(map(str, binary[idx+i*8:idx+(i+1)*8])), 2)
-                        for i in range(3)  # 讀 3 個通道 (R, G, B)
+                        int(''.join(map(str, binary[idx+i*8:idx+(i+1)*8])), 2)  # 讀 8 bits 轉成數字
+                        for i in range(3)  # 讀 3 個通道 (R, G, B)，例如 (255, 128, 64)
                     )
                     pixels.append(pixel)  # 收集像素
                     idx += 24  # 移動到下一個像素
@@ -175,7 +175,7 @@ def binary_to_image(binary):
             for i in range(w * h):  # 灰階: 每像素 8 bits
                 if idx + (i+1) * 8 <= len(binary):
                     pixel = int(''.join(map(str, binary[idx+i*8:idx+(i+1)*8])), 2)  # 讀 8 bits 轉成數字
-                    pixels.append(pixel)  # 收集像素
+                    pixels.append(pixel)  # 收集像素，例如 128
             
             img = Image.new('L', (w, h))  # 建立灰階圖像
             img.putdata(pixels[:w*h])  # 把像素放進圖像
