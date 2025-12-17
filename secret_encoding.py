@@ -214,5 +214,5 @@ def binary_to_image(binary):
         
     return img, (w, h), is_color
 
-except Exception as e:
-    return None, None, None
+  except Exception as e:
+      return None, None, None
