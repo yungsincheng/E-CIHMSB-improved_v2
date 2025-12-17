@@ -66,7 +66,7 @@ def image_to_binary(image):
         - is_color: 1 bit
         - has_alpha: 1 bit
     """
-    orig_size = image.size  # 取得圖像尺寸，例如 (64, 64)
+    size = image.size  # 取得圖像尺寸，例如 (64, 64)
     mode = image.mode  # 取得色彩模式，例如 'RGB', 'L', 'RGBA'
     
     # 判斷是否為彩色圖像
@@ -97,9 +97,9 @@ def image_to_binary(image):
     # 建立 header（ 34 bits：原始尺寸 + 模式）
     binary = []
     
-    for b in format(orig_size[0], '016b'):  # 機密圖像寬度 → 16 bits
+    for b in format(size[0], '016b'):  # 機密圖像寬度 → 16 bits
         binary.append(int(b))
-    for b in format(orig_size[1], '016b'):  # 機密圖像高度 → 16 bits
+    for b in format(size[1], '016b'):  # 機密圖像高度 → 16 bits
         binary.append(int(b))
         
     binary.append(1 if is_color else 0)  # 是否彩色 → 1 bit
@@ -117,7 +117,7 @@ def image_to_binary(image):
             for b in format(px, '08b'):  # 轉成 8 bits
                 binary.append(int(b))
     
-    return binary, orig_size, mode
+    return binary, size, mode
 
 def binary_to_image(binary):
     """
@@ -129,7 +129,7 @@ def binary_to_image(binary):
     
     返回:
         image: PIL Image 物件
-        orig_size: 機密圖像尺寸 (width, height)
+        size: 機密圖像尺寸 (width, height)
         is_color: 是否為彩色
 
     Header 結構（34 bits）:
