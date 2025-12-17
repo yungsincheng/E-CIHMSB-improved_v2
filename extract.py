@@ -135,8 +135,8 @@ def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
     
     # ========== 步驟 4：XOR 解密 ==========
     # type_marker 不需要解密
-    # 如果是圖像，header (66 bits) 也不需要解密，只解密像素資料
-    IMAGE_HEADER_SIZE = 66  # 圖像 header 固定 66 bits
+    # 如果是圖像，header (34 bits) 也不需要解密，只解密像素資料
+    IMAGE_HEADER_SIZE = 34  # 圖像 header 固定 34 bits
     
     if len(encrypted_bits) < 1:
         raise ValueError("提取的位元數不足，無法讀取類型標記")
@@ -257,8 +257,8 @@ def detect_and_extract(cover_image, z_bits, contact_key=None):
     
     # ========== XOR 解密 ==========
     # type_marker 不需要解密
-    # 如果是圖像，header (66 bits) 也不需要解密，只解密像素資料
-    IMAGE_HEADER_SIZE = 66  # 圖像 header 固定 66 bits
+    # 如果是圖像，header (34 bits) 也不需要解密，只解密像素資料
+    IMAGE_HEADER_SIZE = 34  # 圖像 header 固定 34 bits
     
     if len(encrypted_bits) < 1:
         raise ValueError("Z 碼太短，無法提取類型標記")
