@@ -115,11 +115,11 @@ def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
     
     # ========== 步驟 3：XOR 加密 ==========
     # type_marker 不加密（確保類型判斷正確）
-    # 如果是圖像，header (66 bits) 也不加密（確保尺寸正確），只加密像素資料
-    IMAGE_HEADER_SIZE = 66  # 圖像 header 固定 66 bits
+    # 如果是圖像，header (34 bits) 也不加密（確保尺寸正確），只加密像素資料
+    IMAGE_HEADER_SIZE = 34  # 圖像 header 固定 34 bits
     
     if secret_type == 'image' and len(content_bits) > IMAGE_HEADER_SIZE:
-        # 圖像：[type_marker] + [header 66 bits] + XOR([像素資料])
+        # 圖像：[type_marker] + [header 34 bits] + XOR([像素資料])
         image_header = content_bits[:IMAGE_HEADER_SIZE]  # 寬、高、色彩模式等
         pixel_data = content_bits[IMAGE_HEADER_SIZE:]    # 像素資料
         encrypted_pixels = xor_encrypt(pixel_data, contact_key)
