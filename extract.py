@@ -168,10 +168,10 @@ def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
         }
     else:
         try:
-            secret, orig_size, is_color = binary_to_image(content_bits)
+            secret, size, is_color = binary_to_image(content_bits)
             info = {
                 'type': 'image', 
-                'size': orig_size, 
+                'size': size, 
                 'is_color': is_color,
                 'type_marker': type_marker,
                 'total_bits': len(secret_bits),
@@ -295,11 +295,11 @@ def detect_and_extract(cover_image, z_bits, contact_key=None):
     else:
         # 圖片類型
         try:
-            img, orig_size, is_color = binary_to_image(content_bits)
+            img, size, is_color = binary_to_image(content_bits)
             if img is not None:
                 return img, 'image', {
                     'type': 'image', 
-                    'size': orig_size, 
+                    'size': size, 
                     'is_color': is_color,
                     'type_marker': type_marker,
                     'total_bits': len(secret_bits),
