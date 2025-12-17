@@ -50,19 +50,19 @@ def binary_to_text(binary):
 def image_to_binary(image):
     """
     功能:
-        將機密圖像轉成二進位列表（含 header）
+        將圖像轉成二進位列表（含 header）
     
     參數:
         image: PIL Image 物件
     
     返回:
         binary: 二進位列表
-        size: 機密圖像尺寸 (width, height)
-        mode: 機密圖像色彩模式
+        size: 圖像尺寸 (width, height)
+        mode: 圖像色彩模式
     
     Header 結構（34 bits）:
-        - 機密圖像寬度: 16 bits
-        - 機密圖像高度: 16 bits
+        - 圖像寬度: 16 bits
+        - 圖像高度: 16 bits
         - is_color: 1 bit
         - has_alpha: 1 bit
     """
@@ -97,9 +97,9 @@ def image_to_binary(image):
     # 建立 header（ 34 bits：原始尺寸 + 模式）
     binary = []
     
-    for b in format(size[0], '016b'):  # 機密圖像寬度 → 16 bits
+    for b in format(size[0], '016b'):  # 圖像寬度 → 16 bits
         binary.append(int(b))
-    for b in format(size[1], '016b'):  # 機密圖像高度 → 16 bits
+    for b in format(size[1], '016b'):  # 圖像高度 → 16 bits
         binary.append(int(b))
         
     binary.append(1 if is_color else 0)  # 是否彩色 → 1 bit
@@ -122,26 +122,26 @@ def image_to_binary(image):
 def binary_to_image(binary):
     """
     功能:
-        將二進位列表轉回機密圖像
+        將二進位列表轉回圖像
     
     參數:
         binary: 二進位列表
     
     返回:
         image: PIL Image 物件
-        size: 機密圖像尺寸 (width, height)
+        size: 圖像尺寸 (width, height)
         is_color: 是否為彩色
 
     Header 結構（34 bits）:
-        - 機密圖像寬度: 16 bits
-        - 機密圖像高度: 16 bits
+        - 圖像寬度: 16 bits
+        - 圖像高度: 16 bits
         - is_color: 1 bit
         - has_alpha: 1 bit
     """
     try:
         # 解析 Header（34 bits）
-        w = int(''.join(map(str, binary[0:16])), 2)  # 機密圖像寬度
-        h = int(''.join(map(str, binary[16:32])), 2)  # 機密圖像高度
+        w = int(''.join(map(str, binary[0:16])), 2)  # 圖像寬度
+        h = int(''.join(map(str, binary[16:32])), 2)  # 圖像高度
         is_color = binary[32]  # 是否彩色
         has_alpha = binary[33]  # 是否透明
         idx = 34  # 從第 34 bit 開始讀像素
@@ -165,8 +165,9 @@ def binary_to_image(binary):
                     )
                     pixels.append(pixel)  # 收集像素
                     idx += 24  # 移動到下一個像素
-            
-            img = Image.new('RGBA' if has_alpha else 'RGB', (w, h))  # 建立空白圖像
+                    
+            # 彩色
+            img = Image.new('RGBA' if has_alpha else 'RGB', (w, h))  # 建立彩色圖像
             img.putdata(pixels[:w*h])  # 把像素放進圖像
         
         else:
@@ -176,7 +177,8 @@ def binary_to_image(binary):
                 if idx + (i+1) * 8 <= len(binary):
                     pixel = int(''.join(map(str, binary[idx+i*8:idx+(i+1)*8])), 2)  # 讀 8 bits 轉成數字
                     pixels.append(pixel)  # 收集像素，例如 128
-            
+
+            # 灰階
             img = Image.new('L', (w, h))  # 建立灰階圖像
             img.putdata(pixels[:w*h])  # 把像素放進圖像
         
