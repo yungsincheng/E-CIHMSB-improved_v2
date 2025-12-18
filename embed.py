@@ -87,20 +87,27 @@ def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
     
     # 步驟 1：圖像預處理
     # 若為彩色圖像，轉成灰階（使用標準權重）
+    # len(shape) == 3 表示有 3 個維度 (高, 寬, 通道)，即彩色圖像
+    # len(shape) == 2 表示只有 2 個維度 (高, 寬)，即灰階圖像
     if len(cover_image.shape) == 3:
         cover_image = (
-            0.299 * cover_image[:, :, 0] +  # R
-            0.587 * cover_image[:, :, 1] +  # G
-            0.114 * cover_image[:, :, 2]  # B
-        ).astype(np.uint8)
+            0.299 * cover_image[:, :, 0] +  # R × 0.299
+            0.587 * cover_image[:, :, 1] +  # G × 0.587
+            0.114 * cover_image[:, :, 2]  # B × 0.114
+        ).astype(np.uint8)  # 轉成整數 (0~255)
     
-    height, width = cover_image.shape
+    height, width = cover_image.shape  # 取得圖像尺寸
     
     # 檢查圖像大小是否為 8 的倍數（系統以 8×8 區塊處理）
     if height % 8 != 0 or width % 8 != 0:
         raise ValueError(f"圖像大小必須是 8 的倍數！當前大小: {width}×{height}")
     
     # 步驟 2：計算容量並檢查
+    # 例如 512×512 的圖片：
+    # num_rows = 512 // 8 = 64
+    # num_cols = 512 // 8 = 64
+    # num_units = 64 × 64 = 4096 個區塊
+    # capacity = 4096 × 21 = 86,016 bits
     num_rows = height // BLOCK_SIZE  # 垂直方向有幾個 8×8 區塊
     num_cols = width // BLOCK_SIZE   # 水平方向有幾個 8×8 區塊
     num_units = num_rows * num_cols  # 總共幾個區塊
@@ -109,14 +116,16 @@ def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
     # 將機密內容轉成二進位（加入類型標記）
     if secret_type == 'text':
         type_marker = [0]  # 0 = 文字
-        content_bits = text_to_binary(secret)
+        content_bits = text_to_binary(secret)  # "Hi" → [0,1,0,0,1,0,0,0,...]
         info = {'type': 'text', 'length': len(secret), 'bits': len(content_bits) + 1}
     else:
         type_marker = [1]  # 1 = 圖像
-        content_bits, size, mode = image_to_binary(secret)
+        content_bits, size, mode = image_to_binary(secret)  # PIL Image → 二進位
         info = {'type': 'image', 'size': size, 'mode': mode, 'bits': len(content_bits) + 1}
     
     # 組合完整的 secret_bits
+    # 例如文字 "H": [0] + [0,1,0,0,1,0,0,0] = [0,0,1,0,0,1,0,0,0]
+    #              類型   內容
     secret_bits = type_marker + content_bits
     
     # 檢查容量是否足夠
@@ -131,31 +140,48 @@ def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
     IMAGE_HEADER_SIZE = 34
     
     if secret_type == 'image' and len(content_bits) > IMAGE_HEADER_SIZE:
-        # 圖像：[type_marker] + [header] + XOR([像素資料])
+        # 圖像加密結構：
+        # [type_marker 1 bit] + [header 34 bits] + XOR([像素資料])
+        #      不加密              不加密              加密
         image_header = content_bits[:IMAGE_HEADER_SIZE]   # 寬、高、色彩模式
         pixel_data = content_bits[IMAGE_HEADER_SIZE:]   # 像素資料
         encrypted_pixels = xor_encrypt(pixel_data, contact_key)
         encrypted_bits = type_marker + image_header + encrypted_pixels
     else:
-        # 文字：[type_marker] + XOR([content_bits])
+        # 文字加密結構：
+        # [type_marker 1 bit] + XOR([content_bits])
+        #      不加密                  加密
         encrypted_content = xor_encrypt(content_bits, contact_key)
         encrypted_bits = type_marker + encrypted_content
     
     # 步驟 4：對每個 8×8 區塊進行嵌入
+    # 遍歷每個區塊，產生 Z 碼
+    # 載體圖像分割示意（以 16×16 為例）：
+    # ┌────┬────┐
+    # │ 0,0│ 0,1│  每格是 8×8 區塊
+    # ├────┼────┤
+    # │ 1,0│ 1,1│
+    # └────┴────┘
     z_bits = []
     secret_bit_index = 0
     finished = False
     
-    for i in range(num_rows):
+    for i in range(num_rows):  # i = 第幾列區塊
         if finished:
             break
         
-        for j in range(num_cols):
+        for j in range(num_cols):  # j = 第幾行區塊
             if secret_bit_index >= len(encrypted_bits):
                 finished = True
                 break
             
             # 提取這個 8×8 區塊
+            # 例如 i=1, j=2 時：
+            # start_row = 1 × 8 = 8
+            # end_row = 8 + 8 = 16
+            # start_col = 2 × 8 = 16
+            # end_col = 16 + 8 = 24
+            # block = cover_image[8:16, 16:24]
             start_row = i * BLOCK_SIZE
             end_row = start_row + BLOCK_SIZE
             start_col = j * BLOCK_SIZE
@@ -163,25 +189,31 @@ def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
             block = cover_image[start_row:end_row, start_col:end_col]
             
             # 生成這個區塊專屬的排列密鑰 Q
+            # 每個區塊的 Q 都不同（基於區塊內容 + contact_key）
             Q = generate_Q_from_block(block, Q_LENGTH, contact_key=contact_key)
             
             # 計算 21 個多層次平均值
+            # 第一層: 16 個 (2×2 區塊)
+            # 第二層: 4 個 (4×4 區塊)
+            # 第三層: 1 個 (8×8 整塊)
             averages_21 = calculate_hierarchical_averages(block)
             
-            # 用 Q 重新排列 21 個平均值
+            # 用 Q 重新排列 21 個平均值（分 3 輪，每輪 7 個）
             reordered_averages = apply_Q_three_rounds(averages_21, Q)
             
-            # 提取排列後的 21 個 MSB
+            # 提取排列後的 21 個 MSB (最高有效位元）
+            # 例如 156 = 10011100，MSB = 1
             msbs = get_msbs(reordered_averages)
             
             # 映射產生 Z 碼
-            for k in range(TOTAL_AVERAGES_PER_UNIT):
+            # 對這個區塊的 21 個位置，逐一產生 Z
+            for k in range(TOTAL_AVERAGES_PER_UNIT):  # k = 0~20
                 if secret_bit_index >= len(encrypted_bits):
                     finished = True
                     break
                 
-                secret_bit = encrypted_bits[secret_bit_index]
-                msb = msbs[k]
+                secret_bit = encrypted_bits[secret_bit_index]  # 要嵌入的 bit
+                msb = msbs[k]   # 對應的 MSB
                 z_bit = map_to_z(secret_bit, msb)  # (M, MSB) → Z
                 z_bits.append(z_bit)
                 secret_bit_index += 1
