@@ -1,4 +1,5 @@
-# embed.py → 嵌入模組（支援文字和圖片，含對象密鑰 + XOR 加密）
+# 建立 embed.py → 嵌入模組
+# 將機密內容嵌入載體圖像，產生 Z 碼
 
 import numpy as np
 import hashlib
@@ -10,10 +11,11 @@ from binary_operations import get_msbs
 from mapping import map_to_z
 from secret_encoding import text_to_binary, image_to_binary
 
-
+# XOR 加密
 def xor_encrypt(bits, key):
     """
-    用 contact_key 對 bits 進行 XOR 加密
+    功能:
+        用 contact_key 對 bits 進行 XOR 加密
     
     參數:
         bits: 要加密的位元列表
@@ -21,31 +23,43 @@ def xor_encrypt(bits, key):
     
     返回:
         encrypted_bits: 加密後的位元列表
+
+    原理:
+        XOR 運算：相同為 0，不同為 1
+        0 ^ 0 = 0
+        0 ^ 1 = 1
+        1 ^ 0 = 1
+        1 ^ 1 = 0
+        
+        特性：加密和解密用同一個函式
+        原文 XOR 密鑰 = 密文
+        密文 XOR 密鑰 = 原文
     """
     if not key:
         return bits  # 沒有 key 就不加密
     
     # 用 key 生成足夠長的密鑰流
+    # SHA-256 產生 32 bytes (256 bits)，如果不夠就重複 hash
     key_bits = []
-    key_hash = hashlib.sha256(key.encode()).digest()
+    key_hash = hashlib.sha256(key.encode()).digest()  # 把 key 轉成 32 bytes 的 hash，例如 "Alice" → 32 bytes
     
     while len(key_bits) < len(bits):
         for byte in key_hash:
-            key_bits.extend([int(b) for b in format(byte, '08b')])
+            key_bits.extend([int(b) for b in format(byte, '08b')])  # 每個 byte 轉成 8 bits
             if len(key_bits) >= len(bits):
                 break
-        # 重新 hash 以獲得更多 bits
-        key_hash = hashlib.sha256(key_hash).digest()
+        key_hash = hashlib.sha256(key_hash).digest()  # 重新 hash 以獲得更多 bits
     
-    # XOR 運算
+    # XOR 運算：相同為 0，不同為 1
     encrypted_bits = [bits[i] ^ key_bits[i] for i in range(len(bits))]
     return encrypted_bits
 
+# 嵌入主函式
 
 def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
     """
     功能:
-        將機密內容嵌入無載體圖片，產生 Z 碼
+        將機密內容嵌入載體圖像，產生 Z 碼
     
     參數:
         cover_image: numpy array，灰階圖片 (H×W) 或彩色圖片 (H×W×3)
@@ -55,7 +69,7 @@ def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
     
     返回:
         z_bits: Z 碼位元列表
-        capacity: 圖片的總容量
+        capacity: 載體圖像的總容量
         info: 額外資訊（機密內容的相關資訊）
     
     流程:
@@ -71,43 +85,40 @@ def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
     cover_image = np.array(cover_image)
     
     # ========== 步驟 1：圖片預處理 ==========
-    # 1.1 若為彩色圖片，轉成灰階
+    # 若為彩色圖片，轉成灰階（使用標準權重）
     if len(cover_image.shape) == 3:
         cover_image = (
-            0.299 * cover_image[:, :, 0] + 
-            0.587 * cover_image[:, :, 1] + 
-            0.114 * cover_image[:, :, 2]
+            0.299 * cover_image[:, :, 0] +   # R
+            0.587 * cover_image[:, :, 1] +   # G
+            0.114 * cover_image[:, :, 2]     # B
         ).astype(np.uint8)
     
     height, width = cover_image.shape
     
-    # 1.2 檢查圖片大小是否為 8 的倍數
+    # 檢查圖片大小是否為 8 的倍數（系統以 8×8 區塊處理）
     if height % 8 != 0 or width % 8 != 0:
         raise ValueError(f"圖片大小必須是 8 的倍數！當前大小: {width}×{height}")
     
     # ========== 步驟 2：計算容量並檢查 ==========
-    # 2.1 計算 8×8 區塊數量
-    num_rows = height // BLOCK_SIZE
-    num_cols = width // BLOCK_SIZE
-    num_units = num_rows * num_cols
+    num_rows = height // BLOCK_SIZE          # 垂直方向有幾個 8×8 區塊
+    num_cols = width // BLOCK_SIZE           # 水平方向有幾個 8×8 區塊
+    num_units = num_rows * num_cols          # 總共幾個區塊
+    capacity = num_units * TOTAL_AVERAGES_PER_UNIT  # 每區塊 21 bits
     
-    # 2.2 計算容量
-    capacity = num_units * TOTAL_AVERAGES_PER_UNIT
-    
-    # 2.3 將機密內容轉成二進位（加入類型標記）
+    # 將機密內容轉成二進位（加入類型標記）
     if secret_type == 'text':
-        type_marker = [0]  # 0 = 文字
+        type_marker = [0]                    # 0 = 文字
         content_bits = text_to_binary(secret)
         info = {'type': 'text', 'length': len(secret), 'bits': len(content_bits) + 1}
     else:
-        type_marker = [1]  # 1 = 圖片
-        content_bits, size, mode = image_to_binary(secret)  # 將機密圖像轉成二進位
+        type_marker = [1]                    # 1 = 圖片
+        content_bits, size, mode = image_to_binary(secret)
         info = {'type': 'image', 'size': size, 'mode': mode, 'bits': len(content_bits) + 1}
     
-    # 2.4 組合完整的 secret_bits
+    # 組合完整的 secret_bits
     secret_bits = type_marker + content_bits
     
-    # 2.5 檢查容量是否足夠
+    # 檢查容量是否足夠
     if len(secret_bits) > capacity:
         raise ValueError(
             f"機密內容太大！需要 {len(secret_bits)} bits，但容量只有 {capacity} bits"
@@ -115,13 +126,13 @@ def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
     
     # ========== 步驟 3：XOR 加密 ==========
     # type_marker 不加密（確保類型判斷正確）
-    # 如果是圖像，header (34 bits) 也不加密（確保尺寸正確），只加密像素資料
-    IMAGE_HEADER_SIZE = 34  # 圖像 header 固定 34 bits
+    # 圖像的 header (34 bits) 也不加密（確保尺寸正確）
+    IMAGE_HEADER_SIZE = 34
     
     if secret_type == 'image' and len(content_bits) > IMAGE_HEADER_SIZE:
-        # 圖像：[type_marker] + [header 34 bits] + XOR([像素資料])
-        image_header = content_bits[:IMAGE_HEADER_SIZE]  # 寬、高、色彩模式等
-        pixel_data = content_bits[IMAGE_HEADER_SIZE:]    # 像素資料
+        # 圖像：[type_marker] + [header] + XOR([像素資料])
+        image_header = content_bits[:IMAGE_HEADER_SIZE]   # 寬、高、色彩模式
+        pixel_data = content_bits[IMAGE_HEADER_SIZE:]     # 像素資料
         encrypted_pixels = xor_encrypt(pixel_data, contact_key)
         encrypted_bits = type_marker + image_header + encrypted_pixels
     else:
@@ -139,41 +150,39 @@ def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
             break
         
         for j in range(num_cols):
-            # 檢查是否所有 encrypted_bits 已處理完
             if secret_bit_index >= len(encrypted_bits):
                 finished = True
                 break
             
-            # 4.1 提取這個 8×8 區塊
+            # 提取這個 8×8 區塊
             start_row = i * BLOCK_SIZE
             end_row = start_row + BLOCK_SIZE
             start_col = j * BLOCK_SIZE
             end_col = start_col + BLOCK_SIZE
             block = cover_image[start_row:end_row, start_col:end_col]
             
-            # 4.2 生成這個區塊專屬的排列密鑰 Q（加入 contact_key）
+            # 生成這個區塊專屬的排列密鑰 Q
             Q = generate_Q_from_block(block, Q_LENGTH, contact_key=contact_key)
             
-            # 4.3 計算 21 個多層次平均值
+            # 計算 21 個多層次平均值
             averages_21 = calculate_hierarchical_averages(block)
             
-            # 4.4 用 Q 重新排列 21 個平均值
+            # 用 Q 重新排列 21 個平均值
             reordered_averages = apply_Q_three_rounds(averages_21, Q)
             
-            # 4.5 提取排列後的 21 個 MSB
+            # 提取排列後的 21 個 MSB
             msbs = get_msbs(reordered_averages)
             
-            # 4.6 映射產生 Z 碼（使用加密後的 bits）
+            # 映射產生 Z 碼
             for k in range(TOTAL_AVERAGES_PER_UNIT):
                 if secret_bit_index >= len(encrypted_bits):
                     finished = True
                     break
                 
-                secret_bit = encrypted_bits[secret_bit_index]  # ← 使用加密後的 bit
+                secret_bit = encrypted_bits[secret_bit_index]
                 msb = msbs[k]
-                z_bit = map_to_z(secret_bit, msb)
+                z_bit = map_to_z(secret_bit, msb)  # (M, MSB) → Z
                 z_bits.append(z_bit)
-                
                 secret_bit_index += 1
     
     return z_bits, capacity, info
