@@ -1,4 +1,4 @@
-# extract.py → 提取模組（支援文字和圖片，含對象密鑰 + XOR 解密）
+# extract.py → 提取模組（支援文字和圖像，含對象密鑰 + XOR 解密）
 
 import numpy as np
 import hashlib
@@ -46,10 +46,10 @@ def xor_decrypt(bits, key):
 def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
     """
     功能:
-        從 Z 碼和無載體圖片提取機密內容
+        從 Z 碼和無載體圖像提取機密內容
     
     參數:
-        cover_image: numpy array，灰階圖片 (H×W) 或彩色圖片 (H×W×3)
+        cover_image: numpy array，灰階圖像 (H×W) 或彩色圖像 (H×W×3)
         z_bits: Z 碼位元列表
         secret_type: 'text' 或 'image'
         contact_key: 對象專屬密鑰（字串），用於解密
@@ -59,7 +59,7 @@ def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
         info: 額外資訊
     
     流程:
-        1. 圖片預處理（彩色轉灰階、檢查尺寸）
+        1. 圖像預處理（彩色轉灰階、檢查尺寸）
         2. 計算 8×8 區塊數量
         3. 對每個 8×8 區塊進行提取（使用 contact_key 生成 Q）
         4. XOR 解密（使用 contact_key）
@@ -67,8 +67,8 @@ def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
     """
     cover_image = np.array(cover_image)
     
-    # ========== 步驟 1：圖片預處理 ==========
-    # 1.1 若為彩色圖片，轉成灰階
+    # ========== 步驟 1：圖像預處理 ==========
+    # 1.1 若為彩色圖像，轉成灰階
     if len(cover_image.shape) == 3:
         cover_image = (
             0.299 * cover_image[:, :, 0] + 
@@ -78,9 +78,9 @@ def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
     
     height, width = cover_image.shape
     
-    # 1.2 檢查圖片大小是否為 8 的倍數
+    # 1.2 檢查圖像大小是否為 8 的倍數
     if height % 8 != 0 or width % 8 != 0:
-        raise ValueError(f"圖片大小必須是 8 的倍數！當前大小: {width}×{height}")
+        raise ValueError(f"圖像大小必須是 8 的倍數！當前大小: {width}×{height}")
     
     # ========== 步驟 2：計算 8×8 區塊數量 ==========
     num_rows = height // BLOCK_SIZE
@@ -202,7 +202,7 @@ def detect_and_extract(cover_image, z_bits, contact_key=None):
         自動偵測機密類型並提取
     
     參數:
-        cover_image: 無載體圖片
+        cover_image: 無載體圖像
         z_bits: Z 碼
         contact_key: 對象專屬密鑰（字串），用於解密
     
@@ -213,7 +213,7 @@ def detect_and_extract(cover_image, z_bits, contact_key=None):
     
     原理:
         讀取第 1 bit 類型標記來決定解碼方式
-        類型標記: 0 = 文字, 1 = 圖片
+        類型標記: 0 = 文字, 1 = 圖像
     """
     # 先提取所有 bits（加密後的）
     cover_image = np.array(cover_image)
@@ -293,7 +293,7 @@ def detect_and_extract(cover_image, z_bits, contact_key=None):
         except Exception as e:
             raise ValueError(f"文字解碼失敗: {e}")
     else:
-        # 圖片類型
+        # 圖像類型
         try:
             img, size, is_color = binary_to_image(content_bits)
             if img is not None:
@@ -306,7 +306,7 @@ def detect_and_extract(cover_image, z_bits, contact_key=None):
                     'content_bits': len(content_bits)
                 }
             else:
-                raise ValueError("圖片解碼返回 None")
+                raise ValueError("圖像解碼返回 None")
         except Exception as e:
             # 解碼失敗（可能是選錯對象導致亂碼）→ 生成亂碼圖像
             noise_size = 64  # 生成 64×64 的亂碼圖
