@@ -1,4 +1,4 @@
-# extract.py → 提取模組
+# 建立 extract.py → 提取模組
 # 從載體圖像和 Z 碼提取機密內容
 
 import numpy as np
@@ -60,7 +60,7 @@ def xor_decrypt(encrypted_bits, key):
 def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
     """
     功能:
-        從 Z 碼和無載體圖像提取機密內容
+        從 Z 碼和載體圖像提取機密內容
     
     參數:
         cover_image: numpy array，灰階圖像 (H×W) 或彩色圖像 (H×W×3)
@@ -237,7 +237,7 @@ def detect_and_extract(cover_image, z_bits, contact_key=None):
         自動偵測機密類型並提取
     
     參數:
-        cover_image: 無載體圖像
+        cover_image: 載體圖像
         z_bits: Z 碼
         contact_key: 對象專屬密鑰（字串），用於解密
     
