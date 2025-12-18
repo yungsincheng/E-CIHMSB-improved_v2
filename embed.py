@@ -12,7 +12,7 @@ from mapping import map_to_z
 from secret_encoding import text_to_binary, image_to_binary
 
 # XOR 加密
-def xor_encrypt(bits, key):
+def xor_encrypt(secret_bits, key):
     """
     功能:
         用 contact_key 對 bits 進行 XOR 加密
