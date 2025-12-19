@@ -115,7 +115,7 @@ def demo_complete_process():
     print()
 
     layer1_index = 0
-    for i in range(4):  # 4 行
+    for i in range(4):      # 4 行
         for j in range(4):  # 4 列
             start_row = i * 2
             end_row = start_row + 2
@@ -149,7 +149,7 @@ def demo_complete_process():
     print()
 
     layer2_index = 0
-    for i in range(2):  # 2 行
+    for i in range(2):      # 2 行
         for j in range(2):  # 2 列
             start_row = i * 2
             end_row = start_row + 2
