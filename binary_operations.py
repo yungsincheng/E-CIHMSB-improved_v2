@@ -1,5 +1,5 @@
 # 建立 binary_operations.py → 二進位處理模組
-# 整數與二進位列表的轉換、MSB 提取、文字編碼
+# 整數與二進位列表的轉換、MSB 提取
 
 def int_to_binary(number, bit_length=8):
     """
