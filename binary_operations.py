@@ -1,6 +1,7 @@
 # 建立 binary_operations.py → 二進位處理模組
 # 整數與二進位列表的轉換、MSB 提取
 
+# main.py 使用到
 def int_to_binary(number, bit_length=8):
     """
     功能:
@@ -22,6 +23,7 @@ def int_to_binary(number, bit_length=8):
     binary = [int(bit) for bit in binary_str]  # 轉成數字列表，例如 '01000001' → [0,1,0,0,0,0,0,1]
     return binary
 
+# main.py 使用到
 def binary_to_int(binary):
     """
     功能:
