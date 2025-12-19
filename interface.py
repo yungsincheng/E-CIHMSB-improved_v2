@@ -2804,7 +2804,7 @@ else:
                     # 如果 QR 失敗，嘗試 Z碼圖
                     if not detected:
                         try:
-                            z_bits, style_num, img_num, img_size = decode_image_to_z_with_header(uploaded_img)
+                            z_bits, style_num, img_num, img_size = image_to_z_with_header(uploaded_img)
                             extract_style_num = style_num
                             extract_img_num = img_num
                             extract_img_size = img_size
