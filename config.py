@@ -25,7 +25,7 @@ TOTAL_AVERAGES_PER_UNIT = NUM_LAYER1_BLOCKS + NUM_LAYER2_BLOCKS + NUM_LAYER3_BLO
 Q_LENGTH = 7                                    # Q 的長度(從圖像第一行取 7 個像素)
 Q_ROUNDS = TOTAL_AVERAGES_PER_UNIT // Q_LENGTH  # 重複使用輪數: 21÷7=3
 
-# 測試資料 (論文的圖2)
+# 測試資料 (論文的圖 2)
 TEST_IMAGE = [
     [44, 61, 72, 58, 70, 79, 66, 79],
     [74, 65, 79, 62, 82, 62, 49, 38],
