@@ -9,7 +9,7 @@ from permutation import generate_Q_from_block, apply_Q_three_rounds
 from image_processing import calculate_hierarchical_averages
 from binary_operations import get_msbs
 from mapping import map_to_z
-from secret_encoding import text_to_binary, image_to_binary
+from secret_encoding import text_to_binary, image_to_binary, xor_cipher
 
 # 載體容量計算
 def calculate_capacity(image_width, image_height):
@@ -31,50 +31,6 @@ def calculate_capacity(image_width, image_height):
     capacity = num_units * TOTAL_AVERAGES_PER_UNIT
     
     return capacity
-    
-# XOR 加密
-def xor_encrypt(secret_bits, key):
-    """
-    功能:
-        用 key 對 secret_bits 進行 XOR 加密
-    
-    參數:
-        secret_bits: 要加密的機密位元列表
-        key: 密鑰字串
-    
-    返回:
-        encrypted_bits: 加密後的位元列表
-
-    原理:
-        XOR 運算：相同為 0，不同為 1
-        0 ^ 0 = 0
-        0 ^ 1 = 1
-        1 ^ 0 = 1
-        1 ^ 1 = 0
-        
-        特性：加密和解密用同一個函式
-        原文 XOR 密鑰 = 密文
-    """
-    if not key:  # 沒有 key 就不加密
-        return secret_bits  
-    
-    # 用 key 生成足夠長的密鑰流
-    # SHA-256 每次產生 32 bytes (256 bits)，不夠就重複 hash
-    key_bits = []
-    key_hash = hashlib.sha256(key.encode()).digest()                # 把 key 轉成 32 bytes 的 hash，例如 "Alice" → 32 bytes
-    
-    while len(key_bits) < len(secret_bits):
-        for byte in key_hash:                                       # 每個 byte (0~255)
-            key_bits.extend([int(b) for b in format(byte, '08b')])  # 轉成 8 bits，例如 72 → [0,1,0,0,1,0,0,0]
-            if len(key_bits) >= len(secret_bits):
-                break
-        key_hash = hashlib.sha256(key_hash).digest()                # 不夠就再 hash 一次，產生更多 bits
-    
-    # XOR 加密
-    # 例如: secret_bits = [1,0,1], key_bits = [0,1,1]
-    #       結果 = [1^0, 0^1, 1^1] = [1, 1, 0]
-    encrypted_bits = [secret_bits[i] ^ key_bits[i] for i in range(len(secret_bits))]
-    return encrypted_bits
 
 # 嵌入
 def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
