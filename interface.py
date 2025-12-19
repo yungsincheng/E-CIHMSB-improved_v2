@@ -2459,6 +2459,12 @@ else:
                     st.markdown('<p style="font-size: 34px; font-weight: bold; color: #443C3C;">驗證結果</p>', unsafe_allow_html=True)
                     verify_img = st.file_uploader("上傳原始機密圖像", type=["png", "jpg", "jpeg"], key="verify_img_upload")
                     if verify_img:
+                        # 檢查是否換了新圖片，如果是就清除舊結果
+                        current_name = verify_img.name
+                        if st.session_state.get('last_verify_img_name') != current_name:
+                            st.session_state.last_verify_img_name = current_name
+                            st.session_state.verify_img_result = None
+        
                         orig_img = Image.open(verify_img)
                         extracted_img = Image.open(BytesIO(r['image_data']))
                         
