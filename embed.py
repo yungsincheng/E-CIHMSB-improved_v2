@@ -125,8 +125,8 @@ def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
     
     # 步驟 2：計算容量並檢查
     # 例如 512×512 的圖像：
-    # num_rows = 512 // 8 = 64
-    # num_cols = 512 // 8 = 64
+    # num_rows = 512 ÷ 8 = 64
+    # num_cols = 512 ÷ 8 = 64
     # num_units = 64 × 64 = 4096 個區塊
     # capacity = 4096 × 21 = 86,016 bits
     num_rows = height // BLOCK_SIZE  # 垂直方向有幾個 8×8 區塊
