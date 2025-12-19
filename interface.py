@@ -4,7 +4,7 @@
 import streamlit as st
 import streamlit.components.v1 as components
 import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image
 import requests
 from io import BytesIO
 import os
@@ -25,7 +25,7 @@ def load_pyzbar():
 from config import *
 from embed import embed_secret, calculate_capacity
 from extract import detect_and_extract
-from secret_encoding import text_to_binary, image_to_binary, binary_to_image
+from secret_encoding import text_to_binary
 from text_encoding import z_to_text, text_to_z
 from image_encoding import z_to_image_with_header, image_to_z_with_header
 
