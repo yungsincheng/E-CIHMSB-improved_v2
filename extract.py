@@ -87,8 +87,7 @@ def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
     
     # 步驟 1：圖像預處理
     # 若為彩色圖像，轉成灰階（使用標準權重）
-    # len(shape) == 3 表示有 3 個維度 (高, 寬, 通道)，即彩色圖像
-    # len(shape) == 2 表示只有 2 個維度 (高, 寬)，即灰階圖像
+    # len(shape) == 3 表示有 3 個維度（高, 寬, 通道），即彩色圖像
     if len(cover_image.shape) == 3:
         cover_image = (
             0.299 * cover_image[:, :, 0] +  # R × 0.299 
