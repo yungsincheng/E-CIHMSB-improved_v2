@@ -54,7 +54,6 @@ def xor_encrypt(secret_bits, key):
         
         特性：加密和解密用同一個函式
         原文 XOR 密鑰 = 密文
-        密文 XOR 密鑰 = 原文
     """
     if not key:  # 沒有 key 就不加密
         return secret_bits  
