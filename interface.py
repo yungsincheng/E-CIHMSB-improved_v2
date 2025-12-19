@@ -2438,7 +2438,7 @@ else:
                 # ===== 亂碼情況：提取失敗（置中）=====
                 st.markdown(f'''
                 <div style="text-align: center;">
-                    <p style="font-size: 28px; font-weight: bold; color: #C62828; margin-bottom: 15px;">提取失敗 ({r["elapsed_time"]:.2f} 秒)</p>
+                    <p style="font-size: 28px; font-weight: bold; color: #C62828; margin-bottom: 30px;">提取失敗 ({r["elapsed_time"]:.2f} 秒)</p>
                     <p style="font-size: 24px; font-weight: bold; color: #C62828; margin-bottom: 10px;">機密圖像:</p>
                 </div>
                 ''', unsafe_allow_html=True)
