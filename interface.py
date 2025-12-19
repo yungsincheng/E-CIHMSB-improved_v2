@@ -2520,11 +2520,11 @@ else:
                             if vr.get('same_size'):
                                 mse = vr['mse']
                                 if mse == 0:
-                                    st.markdown('<div style="font-size: 22px; font-weight: bold; color: #4f7343;">完全一致！</div>', unsafe_allow_html=True)
+                                    st.markdown('<div style="font-size: 24px; font-weight: bold; color: #4f7343;">完全一致！</div>', unsafe_allow_html=True)
                                 else:
-                                    st.markdown('<div style="font-size: 22px; font-weight: bold; color: #C62828;">不一致！</div>', unsafe_allow_html=True)
+                                    st.markdown('<div style="font-size: 24px; font-weight: bold; color: #C62828;">不一致！</div>', unsafe_allow_html=True)
                             else:
-                                st.markdown(f'<div style="font-size: 22px; font-weight: bold; color: #C62828;">尺寸不同，無法比較<br>原始：{vr["orig_size"][0]}×{vr["orig_size"][1]} vs 提取：{vr["ext_size"][0]}×{vr["ext_size"][1]}</div>', unsafe_allow_html=True)
+                                st.markdown(f'<div style="font-size: 24px; font-weight: bold; color: #C62828;">尺寸不同，無法比較<br>原始：{vr["orig_size"][0]}×{vr["orig_size"][1]} vs 提取：{vr["ext_size"][0]}×{vr["ext_size"][1]}</div>', unsafe_allow_html=True)
         
         # 返回首頁按鈕 - 固定在底部中央
         _, btn_col, _ = st.columns([1, 1, 1])
