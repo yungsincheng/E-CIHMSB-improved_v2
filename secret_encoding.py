@@ -3,6 +3,7 @@
 
 import numpy as np
 import math
+import hashlib
 from PIL import Image
 
 # XOR 加解密（加密和解密通用）
