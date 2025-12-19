@@ -36,7 +36,7 @@ def calculate_hierarchical_averages(block_8x8):
     layer2 = layer1_2x2.mean(axis=(1, 3))  # 結果: 2×2
     layer2_averages = layer2.flatten().astype(int).tolist()
     
-    # ========== 第三層: 1 個 8×8 整體（對第二層的 4 個平均值計算總平均）==========
+    # ========== 第三層: 1 個總平均（對第二層的 4 個平均值計算平均）==========
     layer3_average = int(layer2.mean())
     
     # ========== 合併三層結果 ==========
