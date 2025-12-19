@@ -6,7 +6,7 @@ PROJECT_NAME = 'E-CIHMSB Steganography'
 VERSION = '2.0.0'
 
 # 區塊處理參數
-BLOCK_SIZE = 8  # 固定使用 8×8 作為處理區塊
+BLOCK_SIZE = 8            # 固定使用 8×8 作為處理區塊
 LAYER1_FRAGMENT_SIZE = 2  # 第一層區塊大小: 2×2
 LAYER2_FRAGMENT_SIZE = 4  # 第二層區塊大小: 4×4 (對第一層平均值分組)
 
@@ -16,13 +16,13 @@ LAYER2_FRAGMENT_SIZE = 4  # 第二層區塊大小: 4×4 (對第一層平均值�
 # 第三層: 將第二層的 4 個平均值計算總平均 → 1 個平均值
 NUM_LAYER1_BLOCKS = (BLOCK_SIZE // LAYER1_FRAGMENT_SIZE) ** 2  # 16 個
 NUM_LAYER2_BLOCKS = (BLOCK_SIZE // LAYER2_FRAGMENT_SIZE) ** 2  # 4 個
-NUM_LAYER3_BLOCKS = 1  # 1 個
+NUM_LAYER3_BLOCKS = 1                                          # 1 個
 
 # 總平均值數量: 16+4+1=21
 TOTAL_AVERAGES_PER_UNIT = NUM_LAYER1_BLOCKS + NUM_LAYER2_BLOCKS + NUM_LAYER3_BLOCKS
 
 # Q 密鑰參數
-Q_LENGTH = 7  # Q 的長度(從圖像第一行取 7 個像素)
+Q_LENGTH = 7                                    # Q 的長度(從圖像第一行取 7 個像素)
 Q_ROUNDS = TOTAL_AVERAGES_PER_UNIT // Q_LENGTH  # 重複使用輪數: 21÷7=3
 
 # 測試資料 (論文的圖2)
