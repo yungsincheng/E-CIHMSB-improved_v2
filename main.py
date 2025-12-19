@@ -4,7 +4,7 @@ import numpy as np
 
 from config import PROJECT_NAME, VERSION, TEST_IMAGE, TEST_SECRET
 from config import BLOCK_SIZE, TOTAL_AVERAGES_PER_UNIT, Q_LENGTH, Q_ROUNDS
-from config import calculate_capacity
+from embed import calculate_capacity
 from binary_operations import int_to_binary, binary_to_int, get_msbs
 from secret_encoding import text_to_binary, binary_to_text
 from permutation import generate_Q_from_block, apply_permutation, apply_Q_three_rounds
