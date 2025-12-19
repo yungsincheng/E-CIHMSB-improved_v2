@@ -665,98 +665,6 @@ section[data-testid="stSidebar"] button[kind="header"],
     display: none !important;
 }
 
-/* 首頁樣式 */
-.home-fullscreen {
-    width: 100%;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    padding: 35px 0;
-    box-sizing: border-box;
-}
-
-.welcome-title {
-    font-size: 68px;
-    font-weight: bold;
-    letter-spacing: 0.18em;
-    padding-left: 0.18em;
-    white-space: nowrap;
-    background: linear-gradient(135deg, #4A6B8A 0%, #7D5A6B 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.cards-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 40px;
-}
-
-.footer-credits {
-    text-align: center;
-    color: #5D5D5D;
-    font-size: 28px;
-    font-weight: 500;
-}
-
-/* 動畫卡片 */
-.anim-card {
-    width: 500px;
-    height: 340px;
-    padding: 30px 40px;
-    border-radius: 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    position: relative;
-    overflow: hidden;
-    box-shadow: 8px 8px 0px 0px rgba(60, 80, 100, 0.4);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.anim-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 12px 12px 0px 0px rgba(60, 80, 100, 0.5);
-}
-
-.anim-card-embed { background: linear-gradient(145deg, #7BA3C4 0%, #5C8AAD 100%); }
-.anim-card-extract { background: linear-gradient(145deg, #C4A0AB 0%, #A67B85 100%); }
-
-.anim-flow {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 20px;
-    font-size: 36px;
-    height: 100px;
-}
-
-.anim-flow img { width: 90px !important; height: 90px !important; }
-.anim-flow .arrow { width: 70px !important; height: 70px !important; }
-
-.anim-title {
-    font-size: 56px;
-    font-weight: bold;
-    color: #FFFFFF;
-    margin-bottom: 8px;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-}
-
-.anim-desc {
-    font-size: 36px;
-    color: rgba(255,255,255,0.9);
-    line-height: 1.5;
-    white-space: nowrap;
-}
-
 /* 功能頁面樣式 */
 .page-title-embed {
     font-size: clamp(36px, 4vw, 56px);
@@ -777,16 +685,6 @@ section[data-testid="stSidebar"] button[kind="header"],
 }
 
 /* 訊息框 */
-.success-box {
-    background: linear-gradient(135deg, #4A6B8A 0%, #5C8AAD 100%);
-    color: white; padding: 20px 30px; border-radius: 10px;
-    margin: 10px 0; display: inline-block; font-size: clamp(20px, 2.5vw, 28px); min-width: 300px;
-}
-.info-box {
-    background: linear-gradient(135deg, #4A6B8A 0%, #5C8AAD 100%);
-    color: white; padding: 20px 30px; border-radius: 10px;
-    margin: 10px 0; display: inline-block; font-size: clamp(18px, 2vw, 26px); line-height: 1.9; min-width: 300px;
-}
 .error-box {
     background: linear-gradient(135deg, #8B5A5A 0%, #A67B7B 100%);
     color: white; padding: 20px 30px; border-radius: 10px;
@@ -800,19 +698,6 @@ section[data-testid="stSidebar"] button[kind="header"],
     font-weight: bold !important;
 }
 
-/* 驗證對比文字 - 小字體 */
-[data-testid="stMain"] .stMarkdown p.verify-label {
-    font-size: 14px !important;
-    font-weight: bold !important;
-    color: #443C3C !important;
-}
-
-[data-testid="stMain"] .stMarkdown p.verify-content {
-    font-size: 12px !important;
-    font-weight: normal !important;
-    color: #666 !important;
-}
-
 /* 小提示文字樣式 */
 [data-testid="stMain"] .stMarkdown p.hint-text,
 [data-testid="stMain"] .stMarkdown div.hint-text,
@@ -821,39 +706,6 @@ div.hint-text {
     font-size: 22px !important;
     font-weight: bold !important;
     color: #4f7343 !important;
-}
-
-/* Tab 切換按鈕樣式 */
-.tab-container {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 8px;
-}
-.tab-btn {
-    flex: 1;
-    padding: 12px 20px;
-    font-size: 22px;
-    font-weight: bold;
-    border: 2px solid #ccc;
-    border-radius: 8px;
-    background: #ecefef;
-    color: #666;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-}
-.tab-btn:hover {
-    border-color: #999;
-    background: #e0e0e0;
-}
-.tab-btn.active {
-    background: #4A6B8A;
-    color: white;
-    border-color: #4A6B8A;
-}
-.tab-btn-extract.active {
-    background: #7D5A6B;
-    border-color: #7D5A6B;
 }
 
 /* bits 資訊專用樣式 */
@@ -1313,29 +1165,6 @@ body [data-baseweb="select"] ~ div *::-webkit-scrollbar-track,
     overflow: visible !important;
     text-overflow: unset !important;
     white-space: nowrap !important;
-}
-
-/* 固定按鈕容器 */
-.fixed-btn-next {
-    position: fixed !important;
-    bottom: 50px !important;
-    right: 30px !important;
-    z-index: 1000 !important;
-}
-
-.fixed-btn-back {
-    position: fixed !important;
-    bottom: 50px !important;
-    left: 30px !important;
-    z-index: 1000 !important;
-}
-
-.fixed-btn-next button,
-.fixed-btn-back button {
-    font-size: 18px !important;
-    padding: 12px 36px !important;
-    min-width: 120px !important;
-    border-radius: 8px !important;
 }
 
 /* 間距調整 */
@@ -1870,8 +1699,6 @@ if st.session_state.current_mode is None:
     with col1:
         if st.button("開始嵌入", key="btn_embed", use_container_width=True):
             st.session_state.current_mode = 'embed'
-            st.session_state.prev_embed_image_select = None
-            st.session_state.prev_contact = None
             st.rerun()
     with col2:
         if st.button("開始提取", key="btn_extract", use_container_width=True):
@@ -2108,17 +1935,11 @@ elif st.session_state.current_mode == 'embed':
         
         st.markdown('<div class="page-title-embed" style="text-align: center; margin-bottom: 10px; margin-top: -0.8rem;">嵌入機密</div>', unsafe_allow_html=True)
         
-        embed_text, embed_image, secret_bits_needed = None, None, 0
+        embed_text, secret_bits_needed = None, 0
         embed_image_choice, selected_size = None, None
         
         contacts = st.session_state.contacts
         contact_names = list(contacts.keys())
-        
-        # 初始化狀態
-        if 'embed_step1_done' not in st.session_state:
-            st.session_state.embed_step1_done = False
-        if 'embed_step2_done' not in st.session_state:
-            st.session_state.embed_step2_done = False
         
         # 檢查各步驟完成狀態
         selected_contact = st.session_state.get('selected_contact_saved', None)
