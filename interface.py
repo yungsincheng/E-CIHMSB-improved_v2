@@ -2318,10 +2318,8 @@ elif st.session_state.current_mode == 'embed':
                     with row1_col2:
                         img_idx = st.selectbox("圖像", range(len(images)), format_func=lambda i: image_options[i], key="embed_img_select_h")
                     
-                    available_sizes = [s for s in AVAILABLE_SIZES if calculate_capacity(s, s) >= secret_bits_needed]
-                    if not available_sizes:
-                        available_sizes = [AVAILABLE_SIZES[-1]]
-                    recommended_size = available_sizes[0]
+                    recommended_size = get_recommended_size(secret_bits_needed)
+                    available_sizes = [s for s in AVAILABLE_SIZES if s >= recommended_size]
                     
                     size_options = [f"{s}×{s} ⭐ 推薦" if s == recommended_size else f"{s}×{s}" for s in available_sizes]
                     
