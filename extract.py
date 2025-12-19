@@ -263,12 +263,12 @@ def detect_and_extract(cover_image, z_bits, contact_key=None):
         ).astype(np.uint8)
     
     # 從第一個區塊提取 type_marker
-    block = cover_image[0:BLOCK_SIZE, 0:BLOCK_SIZE]
+    block = cover_image[0:BLOCK_SIZE, 0:BLOCK_SIZE]                      # 取第一個 8×8 區塊
     Q = generate_Q_from_block(block, Q_LENGTH, contact_key=contact_key)
     averages_21 = calculate_hierarchical_averages(block)
     reordered = apply_Q_three_rounds(averages_21, Q)
     msbs = get_msbs(reordered)
-    type_marker = map_from_z(z_bits[0], msbs[0])  # 讀取第 1 個 bit
+    type_marker = map_from_z(z_bits[0], msbs[0])                         # 用 (Z, MSB) 還原第 1 個 bit
     
     # 根據類型呼叫 extract_secret
     if type_marker == 0:
