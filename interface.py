@@ -2514,9 +2514,9 @@ else:
                             if vr.get('same_size'):
                                 mse = vr['mse']
                                 if mse == 0:
-                                    st.markdown(f'<p style="font-size: 16px; color: #4f7343;">完全一致！</p>', unsafe_allow_html=True)
+                                    st.markdown('<p style="font-size: 22px; font-weight: bold; color: #4f7343;">完全一致！</p>', unsafe_allow_html=True)
                                 else:
-                                    st.markdown(f'<p style="font-size: 16px; color: #F57C00;">MSE：{mse:.4f} - 圖像有差異</p>', unsafe_allow_html=True)
+                                    st.markdown('<p style="font-size: 22px; font-weight: bold; color: #C62828;">不一致！</p>', unsafe_allow_html=True)
                             else:
                                 st.markdown(f'<p style="font-size: 16px; color: #C62828;">尺寸不同，無法比較<br>原始：{vr["orig_size"][0]}×{vr["orig_size"][1]} vs 提取：{vr["ext_size"][0]}×{vr["ext_size"][1]}</p>', unsafe_allow_html=True)
         
