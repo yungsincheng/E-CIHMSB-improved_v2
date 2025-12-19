@@ -10,51 +10,7 @@ from permutation import generate_Q_from_block, apply_Q_three_rounds
 from image_processing import calculate_hierarchical_averages
 from binary_operations import get_msbs
 from mapping import map_from_z
-from secret_encoding import binary_to_text, binary_to_image
-
-# XOR 解密
-def xor_decrypt(encrypted_bits, key):
-    """
-    功能:
-        用 key 對 encrypted_bits 進行 XOR 解密
-    
-    參數:
-        encrypted_bits: 要解密的加密位元列表
-        key: 密鑰字串
-    
-    返回:
-        decrypted_bits: 解密後的位元列表
-
-    原理:
-        XOR 運算：相同為 0，不同為 1
-        0 ^ 0 = 0
-        0 ^ 1 = 1
-        1 ^ 0 = 1
-        1 ^ 1 = 0
-        
-        特性：加密和解密用同一個函式
-        密文 XOR 密鑰 = 原文
-    """
-    if not key:  # 沒有 key 就不解密
-        return encrypted_bits  
-    
-    # 用 key 生成足夠長的密鑰流
-    # SHA-256 每次產生 32 bytes (256 bits)，不夠就重複 hash
-    key_bits = []
-    key_hash = hashlib.sha256(key.encode()).digest()                # 把 key 轉成 32 bytes 的 hash，例如 "Alice" → 32 bytes
-    
-    while len(key_bits) < len(encrypted_bits):
-        for byte in key_hash:                                       # 每個 byte (0~255)
-            key_bits.extend([int(b) for b in format(byte, '08b')])  # 轉成 8 bits，例如 72 → [0,1,0,0,1,0,0,0]
-            if len(key_bits) >= len(encrypted_bits):
-                break
-        key_hash = hashlib.sha256(key_hash).digest()                # 不夠就再 hash 一次，產生更多 bits
-    
-    # XOR 解密
-    # 例如: encrypted_bits = [1,1,0], key_bits = [0,1,1]
-    #       結果 = [1^0, 1^1, 0^1] = [1, 0, 1]
-    decrypted_bits = [encrypted_bits[i] ^ key_bits[i] for i in range(len(encrypted_bits))]
-    return decrypted_bits
+from secret_encoding import text_to_binary, image_to_binary, xor_cipher
 
 # 提取
 def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
