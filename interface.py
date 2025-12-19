@@ -24,6 +24,8 @@ from config import *
 from embed import embed_secret
 from extract import detect_and_extract
 from secret_encoding import text_to_binary, image_to_binary, binary_to_image
+from text_encoding import z_to_text, text_to_z
+from image_encoding import z_to_image_with_header, image_to_z_with_header
 
 def is_likely_garbled_text(text):
     """檢測文字是否可能是亂碼"""
@@ -334,65 +336,6 @@ def calculate_required_bits_for_image(image, target_capacity=None):
         ratio = math.sqrt(max_pixels / current_pixels)
         scaled = (max(8, (int(original_size[0] * ratio) // 8) * 8), max(8, (int(original_size[1] * ratio) // 8) * 8))
     return header_bits + scaled[0] * scaled[1] * bits_per_pixel, scaled
-
-# ==================== Z碼圖編碼/解碼 ====================
-def encode_z_as_image_with_header(z_bits, style_num, img_num, img_size):
-    """Z碼圖編碼（含風格編號、圖像編號和尺寸）"""
-    length = len(z_bits)
-    header_bits = [int(b) for b in format(length, '032b')]
-    header_bits += [int(b) for b in format(style_num, '08b')]  # 風格編號 8 bits
-    header_bits += [int(b) for b in format(img_num, '016b')]
-    header_bits += [int(b) for b in format(img_size, '016b')]
-    full_bits = header_bits + z_bits
-    
-    if len(full_bits) % 8 != 0:
-        padding = 8 - (len(full_bits) % 8)
-        full_bits = full_bits + [0] * padding
-    
-    pixels = []
-    for i in range(0, len(full_bits), 8):
-        byte = full_bits[i:i+8]
-        pixel_value = int(''.join(map(str, byte)), 2)
-        pixels.append(pixel_value)
-    
-    num_pixels = len(pixels)
-    width = int(math.sqrt(num_pixels))
-    height = math.ceil(num_pixels / width)
-    
-    while len(pixels) < width * height:
-        pixels.append(0)
-    
-    image = Image.new('L', (width, height))
-    image.putdata(pixels[:width * height])
-    
-    return image, length
-
-def decode_image_to_z_with_header(image):
-    """Z碼圖解碼（含風格編號、圖像編號和尺寸）"""
-    if image.mode != 'L':
-        image = image.convert('L')
-    
-    pixels = list(image.getdata())
-    
-    all_bits = []
-    for pixel in pixels:
-        bits = [int(b) for b in format(pixel, '08b')]
-        all_bits.extend(bits)
-    
-    if len(all_bits) < 72:  # 32 + 8 + 16 + 16 = 72
-        raise ValueError("Z碼圖格式錯誤：太小")
-    
-    z_length = int(''.join(map(str, all_bits[:32])), 2)
-    style_num = int(''.join(map(str, all_bits[32:40])), 2)
-    img_num = int(''.join(map(str, all_bits[40:56])), 2)
-    img_size = int(''.join(map(str, all_bits[56:72])), 2)
-    
-    if z_length <= 0 or z_length > len(all_bits) - 72:
-        raise ValueError(f"無效的 Z碼（長度：{z_length}）")
-    
-    z_bits = all_bits[72:72 + z_length]
-    
-    return z_bits, style_num, img_num, img_size
 
 # ==================== Streamlit 頁面配置 ====================
 st.set_page_config(page_title="🔐 高效能無載體之機密編碼技術", page_icon="🔐", layout="wide", initial_sidebar_state="collapsed")
@@ -1925,7 +1868,7 @@ elif st.session_state.current_mode == 'embed':
         
         with col_right:
             if r['embed_secret_type'] == "文字":
-                z_text = ''.join(str(b) for b in r['z_bits'])
+                z_text = z_to_text(r['z_bits'])
                 style_num = r.get("style_num", 1)
                 img_num = r["embed_image_choice"].split("-")[1]
                 img_size = r["embed_image_choice"].split("-")[2]
@@ -2956,7 +2899,7 @@ else:
                 try:
                     start = time.time()
                     clean = ''.join(c for c in extract_z_text.strip() if c in '01')
-                    Z = [int(b) for b in clean] if clean else None
+                    Z = text_to_z(clean) if clean else None
                     
                     # 取得對象密鑰
                     selected_contact = st.session_state.get('extract_contact_saved', None)
