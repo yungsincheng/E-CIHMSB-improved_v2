@@ -24,10 +24,14 @@ def generate_Q_from_block(block, q_length=7, contact_key=None):
         3. 用 contact_key 對 Q 進行額外置換（增加安全性）
     
     範例:
-        像素值 [44, 61, 72, 58, 70, 79, 66]
-        排序後 [44, 58, 61, 66, 70, 72, 79]
-                ↓   ↓   ↓   ↓   ↓   ↓   ↓
-        索引   [1,  4,  2,  7,  5,  3,  6]
+        原始像素值：
+        位置:   1    2    3    4    5    6    7
+          值:   44   61   72   58   70   79   66
+                ↓    ↓    ↓    ↓    ↓    ↓    ↓
+        排序後：
+        位置:   1    4    2    7    5    3    6
+          值:  44   58   61   66   70   72   79
+    
         Q = [1, 4, 2, 7, 5, 3, 6]
     """
     block = np.array(block)
@@ -46,7 +50,7 @@ def generate_Q_from_block(block, q_length=7, contact_key=None):
     # 只取前 q_length 個像素
     first_row = first_row[:q_length]
     
-    # 排序後得到每個數值在排序中的位置（0-based）
+    # 取得由小到大排序的索引（0-based）
     sorted_indices = np.argsort(first_row)
     
     # 轉換成 1-based 索引
