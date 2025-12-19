@@ -94,7 +94,7 @@ def image_to_binary(image):
         image = image.convert('RGB')                           # 統一轉 RGB
         has_alpha = False                                      # 不保留透明
     
-    # 建立 header（ 34 bits：原始尺寸 + 模式）
+    # 建立 header（34 bits：原始尺寸 + 模式）
     binary = []
     
     for b in format(size[0], '016b'):      # 圖像寬度 → 16 bits
