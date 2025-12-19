@@ -10,7 +10,7 @@ from permutation import generate_Q_from_block, apply_Q_three_rounds
 from image_processing import calculate_hierarchical_averages
 from binary_operations import get_msbs
 from mapping import map_from_z
-from secret_encoding import text_to_binary, image_to_binary, xor_cipher
+from secret_encoding import text_to_binary, binary_to_text, image_to_binary, binary_to_image, xor_cipher
 
 # 提取
 def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
