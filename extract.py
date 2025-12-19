@@ -136,13 +136,13 @@ def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
         #      不解密              不解密              解密
         image_header = encrypted_content[:IMAGE_HEADER_SIZE]
         encrypted_pixels = encrypted_content[IMAGE_HEADER_SIZE:]
-        decrypted_pixels = xor_decrypt(encrypted_pixels, contact_key)
+        decrypted_pixels = xor_cipher(encrypted_pixels, contact_key)
         content_bits = image_header + decrypted_pixels
     else:
         # 文字解密結構：
         # [type_marker 1 bit] + XOR([content_bits])
         #      不解密                  解密
-        content_bits = xor_decrypt(encrypted_content, contact_key)
+        content_bits = xor_cipher(encrypted_content, contact_key)
     
     secret_bits = [type_marker] + content_bits  # 重組完整位元（用於計算 total_bits）
 
