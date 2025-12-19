@@ -1,7 +1,4 @@
-"""
-🔐 藏圖秘語 - 方案 A：等比例縮放版
-設計基準：1920×1080，所有螢幕等比例縮放
-"""
+# 建立 interface.py → 介面
 
 import streamlit as st
 import streamlit.components.v1 as components
