@@ -16,6 +16,7 @@ def z_to_text(z_bits):
         [1, 0, 1, 1] → "1011"
     """
     z_text = ''.join(str(bit) for bit in z_bits)
+    
     return z_text
 
 def text_to_z(z_text):
@@ -33,4 +34,5 @@ def text_to_z(z_text):
         "1011" → [1, 0, 1, 1]
     """
     z_bits = [int(bit) for bit in z_text]
+    
     return z_bits
