@@ -41,9 +41,9 @@ def int_to_binary(number, bit_length=8):
     用途:
         展示二進位轉換過程
     """
-    binary_str = bin(number)[2:]              # 去掉開頭的 '0b'，例如 bin(65) = '0b1000001' → '1000001'
-    binary_str = binary_str.zfill(bit_length) # 不夠長就在前面補 0，例如 '1000001' → '01000001'
-    binary = [int(bit) for bit in binary_str] # 轉成數字列表，例如 '01000001' → [0,1,0,0,0,0,0,1]
+    binary_str = bin(number)[2:]               # 去掉開頭的 '0b'，例如 bin(65) = '0b1000001' → '1000001'
+    binary_str = binary_str.zfill(bit_length)  # 不夠長就在前面補 0，例如 '1000001' → '01000001'
+    binary = [int(bit) for bit in binary_str]  # 轉成數字列表，例如 '01000001' → [0,1,0,0,0,0,0,1]
     return binary
 
 def binary_to_int(binary):
