@@ -4,18 +4,39 @@
 import numpy as np
 import hashlib
 
-from config import Q_LENGTH, TOTAL_AVERAGES_PER_UNIT, BLOCK_SIZE, calculate_capacity
+from config import Q_LENGTH, TOTAL_AVERAGES_PER_UNIT, BLOCK_SIZE
 from permutation import generate_Q_from_block, apply_Q_three_rounds
 from image_processing import calculate_hierarchical_averages
 from binary_operations import get_msbs
 from mapping import map_to_z
 from secret_encoding import text_to_binary, image_to_binary
 
+# 載體容量計算
+def calculate_capacity(image_width, image_height):
+    """
+    功能:
+        計算載體圖像的嵌入容量（可藏多少 bits）
+    
+    參數:
+        image_width: 載體圖像寬度
+        image_height: 載體圖像高度
+    
+    返回:
+        capacity: 可嵌入的 bits 數量
+    
+    公式:
+        EC = (W×H) / (8×8) × 21
+    """
+    num_units = (image_width // BLOCK_SIZE) * (image_height // BLOCK_SIZE)
+    capacity = num_units * TOTAL_AVERAGES_PER_UNIT
+    
+    return capacity
+    
 # XOR 加密
 def xor_encrypt(secret_bits, key):
     """
     功能:
-        用 contact_key 對 bits 進行 XOR 加密
+        用 key 對 secret_bits 進行 XOR 加密
     
     參數:
         secret_bits: 要加密的機密位元列表
@@ -41,16 +62,16 @@ def xor_encrypt(secret_bits, key):
     # 用 key 生成足夠長的密鑰流
     # SHA-256 每次產生 32 bytes (256 bits)，不夠就重複 hash
     key_bits = []
-    key_hash = hashlib.sha256(key.encode()).digest()  # 把 key 轉成 32 bytes 的 hash，例如 "Alice" → 32 bytes
+    key_hash = hashlib.sha256(key.encode()).digest()                # 把 key 轉成 32 bytes 的 hash，例如 "Alice" → 32 bytes
     
     while len(key_bits) < len(secret_bits):
-        for byte in key_hash:  # 每個 byte (0~255)
+        for byte in key_hash:                                       # 每個 byte (0~255)
             key_bits.extend([int(b) for b in format(byte, '08b')])  # 轉成 8 bits，例如 72 → [0,1,0,0,1,0,0,0]
             if len(key_bits) >= len(secret_bits):
                 break
-        key_hash = hashlib.sha256(key_hash).digest()  # 不夠就再 hash 一次，產生更多 bits
+        key_hash = hashlib.sha256(key_hash).digest()                # 不夠就再 hash 一次，產生更多 bits
     
-    # XOR 運算：相同為 0，不同為 1
+    # XOR 加密
     # 例如: secret_bits = [1,0,1], key_bits = [0,1,1]
     #       結果 = [1^0, 0^1, 1^1] = [1, 1, 0]
     encrypted_bits = [secret_bits[i] ^ key_bits[i] for i in range(len(secret_bits))]
@@ -70,7 +91,7 @@ def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
     
     返回:
         z_bits: Z 碼位元列表
-        capacity: 載體圖像的總容量
+        capacity: 載體圖像的總容量（bits）
         info: 額外資訊（機密內容的相關資訊）
     
     流程:
@@ -93,17 +114,17 @@ def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
         cover_image = (
             0.299 * cover_image[:, :, 0] +  # R × 0.299
             0.587 * cover_image[:, :, 1] +  # G × 0.587
-            0.114 * cover_image[:, :, 2]  # B × 0.114
-        ).astype(np.uint8)  # 轉成整數 (0~255)
+            0.114 * cover_image[:, :, 2]    # B × 0.114
+        ).astype(np.uint8)                  # 轉成整數 (0~255)
     
-    height, width = cover_image.shape  # 取得圖像尺寸
+    height, width = cover_image.shape       # 取得圖像尺寸
     
     # 檢查圖像大小是否為 8 的倍數（系統以 8×8 區塊處理）
     if height % 8 != 0 or width % 8 != 0:
         raise ValueError(f"圖像大小必須是 8 的倍數！當前大小: {width}×{height}")
     
     # 步驟 2：計算容量並檢查
-    # 例如 512×512 的圖片：
+    # 例如 512×512 的圖像：
     # num_rows = 512 // 8 = 64
     # num_cols = 512 // 8 = 64
     # num_units = 64 × 64 = 4096 個區塊
