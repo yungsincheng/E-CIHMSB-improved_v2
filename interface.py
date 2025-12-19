@@ -2438,8 +2438,8 @@ else:
                 # ===== 亂碼情況：提取失敗（置中）=====
                 st.markdown(f'''
                 <div style="text-align: center;">
-                    <div style="font-size: 40px; font-weight: bold; color: #C62828; margin-bottom: 45px;">提取失敗 ({r["elapsed_time"]:.2f} 秒)</p>
-                    <div style="font-size: 35px; font-weight: bold; color: #C62828; margin-bottom: 20px;">機密圖像:</p>
+                    <div style="font-size: 40px; font-weight: bold; color: #C62828; margin-bottom: 45px;">提取失敗 ({r["elapsed_time"]:.2f} 秒)</div>
+                    <div style="font-size: 35px; font-weight: bold; color: #C62828; margin-bottom: 20px;">機密圖像:</div>
                 </div>
                 ''', unsafe_allow_html=True)
                 _, img_col, _ = st.columns([1.3, 0.6, 1.2])
