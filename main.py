@@ -5,7 +5,8 @@ import numpy as np
 from config import PROJECT_NAME, VERSION, TEST_IMAGE, TEST_SECRET
 from config import BLOCK_SIZE, TOTAL_AVERAGES_PER_UNIT, Q_LENGTH, Q_ROUNDS
 from config import calculate_capacity
-from binary_operations import int_to_binary, binary_to_int, get_msbs, text_to_utf8, utf8_to_text
+from binary_operations import int_to_binary, binary_to_int, get_msbs
+from secret_encoding import text_to_binary, binary_to_text
 from permutation import generate_Q_from_block, apply_permutation, apply_Q_three_rounds
 from image_processing import calculate_hierarchical_averages
 from mapping import map_to_z, map_from_z
@@ -248,7 +249,7 @@ def demo_complete_process():
     print_section("步驟5: 嵌入秘密訊息並生成 Z 碼")
 
     print(f"秘密訊息: \"{secret_message}\"")
-    content_bits = text_to_utf8(secret_message)
+    content_bits = text_to_binary(secret_message)
     print(f"UTF-8 編碼: {content_bits}")
     print(f"內容需要 {len(content_bits)} 位元")
     print()
@@ -465,7 +466,7 @@ def demo_complete_process():
     print()
 
     # 將內容位元轉回文字
-    recovered_text = utf8_to_text(content_bits_recovered)
+    recovered_text = binary_to_text(content_bits_recovered)
     print(f"▸ UTF-8 解碼: {content_bits_recovered} → \"{recovered_text}\"")
     print()
     print(f"還原的秘密訊息: \"{recovered_message}\"")
