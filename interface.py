@@ -21,7 +21,7 @@ def load_pyzbar():
     return decode_qr
 
 from config import *
-from embed import embed_secret
+from embed import embed_secret, calculate_capacity
 from extract import detect_and_extract
 from secret_encoding import text_to_binary, image_to_binary, binary_to_image
 from text_encoding import z_to_text, text_to_z
@@ -265,7 +265,7 @@ IMAGE_LIBRARY = {
 def get_recommended_size(secret_bits):
     """根據機密大小推薦最小適合尺寸"""
     for size in AVAILABLE_SIZES:
-        capacity = calculate_image_capacity(size)
+        capacity = calculate_capacity(size, size)
         if capacity >= secret_bits:
             return size
     return AVAILABLE_SIZES[-1]
@@ -297,9 +297,6 @@ def download_image_by_id(pexels_id, size):
     return img, img.convert('L')
 
 # ==================== 輔助函數 ====================
-def calculate_image_capacity(size):
-    return (size * size) // 64 * 21
-
 def calculate_required_bits_for_image(image, target_capacity=None):
     original_size, original_mode = image.size, image.mode
     is_color = original_mode not in ['L', '1', 'LA']
@@ -319,10 +316,10 @@ def calculate_required_bits_for_image(image, target_capacity=None):
         has_alpha = False
     
     if is_color:
-        header_bits = 66
+        header_bits = 34
         bits_per_pixel = 32 if has_alpha else 24
     else:
-        header_bits, bits_per_pixel = 66, 8
+        header_bits, bits_per_pixel = 34, 8
     
     if target_capacity is None:
         w, h = original_size[0], original_size[1]
@@ -2208,7 +2205,7 @@ elif st.session_state.current_mode == 'embed':
                     selected_image = images[img_idx]
                     
                     # 載體圖和容量信息並排（水平對齊）
-                    capacity = calculate_image_capacity(selected_size)
+                    capacity = calculate_capacity(selected_size, selected_size)
                     usage = secret_bits_needed / capacity * 100
                     capacity_ok = secret_bits_needed <= capacity
                     
@@ -2305,7 +2302,7 @@ elif st.session_state.current_mode == 'embed':
 
             # 檢查容量是否足夠
             image_size = st.session_state.get('embed_image_size')
-            capacity = calculate_image_capacity(image_size)
+            capacity = calculate_capacity(image_size, image_size)
             secret_bits_needed = st.session_state.get('secret_bits_saved', 0)
             
             if secret_bits_needed > capacity:
