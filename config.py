@@ -1,4 +1,5 @@
 # 建立 config.py → 配置模組
+# 系統參數設定、測試資料
 
 # 專案資訊
 PROJECT_NAME = 'E-CIHMSB Steganography'
@@ -24,23 +25,6 @@ TOTAL_AVERAGES_PER_UNIT = NUM_LAYER1_BLOCKS + NUM_LAYER2_BLOCKS + NUM_LAYER3_BLO
 Q_LENGTH = 7  # Q 的長度(從圖像第一行取 7 個像素)
 Q_ROUNDS = TOTAL_AVERAGES_PER_UNIT // Q_LENGTH  # 重複使用輪數: 21÷7=3
 
-# MSB 映射表
-# 正向映射表(論文的表1)：(M,MSB)→Z
-MAPPING_TABLE = {
-    (0, 0): 1,
-    (0, 1): 0,
-    (1, 0): 0,
-    (1, 1): 1
-}
-
-# 反向映射表：(Z,MSB)→M
-REVERSE_MAPPING_TABLE = {
-    (1, 0): 0,
-    (0, 0): 1,
-    (1, 1): 1,
-    (0, 1): 0
-}
-
 # 測試資料 (論文的圖2)
 TEST_IMAGE = [
     [44, 61, 72, 58, 70, 79, 66, 79],
@@ -54,28 +38,3 @@ TEST_IMAGE = [
 ]
 
 TEST_SECRET = "H"  # 測試機密內容
-
-# 載體容量計算
-def calculate_capacity(image_width, image_height):
-    """
-    功能:
-        計算載體圖像的嵌入容量（可藏多少 bits 的機密）
-    
-    參數:
-        image_width: 載體圖像寬度
-        image_height: 載體圖像高度
-    
-    返回:
-        capacity: 可嵌入的 bits 數量
-    
-    公式:
-        EC = (W×H) / (8×8) × 21
-    
-    注意:
-        容量以 bits 為單位
-        文字採用 UTF-8 編碼 (英文 1 byte, 中文 3 bytes)
-    """
-    num_units = (image_width // BLOCK_SIZE) * (image_height // BLOCK_SIZE)
-    capacity = num_units * TOTAL_AVERAGES_PER_UNIT
-    
-    return capacity
