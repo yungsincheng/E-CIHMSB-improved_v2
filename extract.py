@@ -93,7 +93,7 @@ def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
         cover_image = (
             0.299 * cover_image[:, :, 0] +  # R × 0.299 
             0.587 * cover_image[:, :, 1] +  # G × 0.587
-            0.114 * cover_image[:, :, 2]  # B × 0.114
+            0.114 * cover_image[:, :, 2]    # B × 0.114
         ).astype(np.uint8)  # 轉成整數 (0~255)
     
     height, width = cover_image.shape  # 取得圖像尺寸
@@ -104,7 +104,7 @@ def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
     
     # 步驟 2：計算 8×8 區塊數量
     num_rows = height // BLOCK_SIZE  # 垂直方向有幾個 8×8 區塊
-    num_cols = width // BLOCK_SIZE  # 水平方向有幾個 8×8 區塊
+    num_cols = width // BLOCK_SIZE   # 水平方向有幾個 8×8 區塊
     
     # 步驟 3：對每個 8×8 區塊進行提取
     # 流程和 embed.py 相反：從 Z 碼還原加密後的位元
@@ -147,7 +147,7 @@ def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
             # 用 Q 重新排列 21 個平均值（分 3 輪，每輪 7 個）
             reordered_averages = apply_Q_three_rounds(averages_21, Q)
             
-            # 提取排列後的 21 個 MSB (最高有效位元）
+            # 提取排列後的 21 個 MSB（最高有效位元）
             # 例如 156 = 10011100，MSB = 1
             msbs = get_msbs(reordered_averages)
             
@@ -159,7 +159,7 @@ def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
                     break
                 
                 z_bit = z_bits[z_bit_index]  # Z 碼的 bit
-                msb = msbs[k]   # 對應的 MSB
+                msb = msbs[k]                 # 對應的 MSB
                 encrypted_bit = map_from_z(z_bit, msb)  # (Z, MSB) → M
                 encrypted_bits.append(encrypted_bit)
                 z_bit_index += 1
@@ -172,8 +172,8 @@ def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
     if len(encrypted_bits) < 1:
         raise ValueError("提取的位元數不足，無法讀取類型標記")
     
-    type_marker = encrypted_bits[0]  # type_marker 沒有被加密
-    encrypted_content = encrypted_bits[1:]  # 這些是 header + 加密後的內容
+    type_marker = encrypted_bits[0]           # type_marker 沒有被加密
+    encrypted_content = encrypted_bits[1:]    # 這些是 header + 加密後的內容
     
     if type_marker == 1 and len(encrypted_content) > IMAGE_HEADER_SIZE:
         # 圖像解密結構：
@@ -213,7 +213,8 @@ def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
                 'content_bits': len(content_bits)
             }
         except Exception as e:
-            # 解碼失敗（選錯對象導致亂碼）→ 生成亂碼圖像
+            # 解碼失敗（Z 碼損壞或載體圖像完全不對）→ 生成 64×64 亂碼圖像
+            # 註：選錯對象不會進入這裡，只是圖像內容變亂碼（尺寸正確）
             noise_size = 64
             noise_data = bytes([content_bits[i % len(content_bits)] * 255 if i < len(content_bits) else 128 
                                for i in range(noise_size * noise_size)])
@@ -225,12 +226,12 @@ def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
                 'type_marker': type_marker,
                 'total_bits': len(secret_bits),
                 'content_bits': len(content_bits),
-                'error': f'解碼失敗（可能密鑰錯誤）: {str(e)[:50]}'
+                'error': f'解碼失敗（Z 碼損壞或載體圖像不對）: {str(e)[:50]}'
             }
     
     return secret, info
 
-# 自動偵測類型並提取
+# 自動偵測類型並提取（重用 extract_secret）
 def detect_and_extract(cover_image, z_bits, contact_key=None):
     """
     功能:
@@ -247,13 +248,13 @@ def detect_and_extract(cover_image, z_bits, contact_key=None):
         info: 額外資訊
     
     原理:
-        讀取第 1 bit 類型標記來決定解碼方式
+        1. 從第一個區塊提取 type_marker（第 1 bit）
+        2. 根據 type_marker 呼叫 extract_secret
         類型標記: 0 = 文字, 1 = 圖像
     """
-    # 先提取所有 bits（加密後的）
     cover_image = np.array(cover_image)
-
-    # 圖像預處理
+    
+    # 圖像預處理（只為了讀取 type_marker）
     if len(cover_image.shape) == 3:
         cover_image = (
             0.299 * cover_image[:, :, 0] + 
@@ -261,101 +262,18 @@ def detect_and_extract(cover_image, z_bits, contact_key=None):
             0.114 * cover_image[:, :, 2]
         ).astype(np.uint8)
     
-    height, width = cover_image.shape
-    num_rows = height // BLOCK_SIZE
-    num_cols = width // BLOCK_SIZE
-
-    # 從 Z 碼還原加密後的位元
-    encrypted_bits = []
-    z_bit_index = 0
-    finished = False
+    # 從第一個區塊提取 type_marker
+    block = cover_image[0:BLOCK_SIZE, 0:BLOCK_SIZE]
+    Q = generate_Q_from_block(block, Q_LENGTH, contact_key=contact_key)
+    averages_21 = calculate_hierarchical_averages(block)
+    reordered = apply_Q_three_rounds(averages_21, Q)
+    msbs = get_msbs(reordered)
+    type_marker = map_from_z(z_bits[0], msbs[0])  # 讀取第 1 bit
     
-    for i in range(num_rows):
-        if finished:
-            break
-        for j in range(num_cols):
-            if z_bit_index >= len(z_bits):
-                finished = True
-                break
-            
-            block = cover_image[i*BLOCK_SIZE:(i+1)*BLOCK_SIZE, j*BLOCK_SIZE:(j+1)*BLOCK_SIZE]
-            Q = generate_Q_from_block(block, Q_LENGTH, contact_key=contact_key)
-            averages_21 = calculate_hierarchical_averages(block)
-            reordered = apply_Q_three_rounds(averages_21, Q)
-            msbs = get_msbs(reordered)
-            
-            for k in range(TOTAL_AVERAGES_PER_UNIT):
-                if z_bit_index >= len(z_bits):
-                    finished = True
-                    break
-                encrypted_bits.append(map_from_z(z_bits[z_bit_index], msbs[k]))
-                z_bit_index += 1
-    
-    # XOR 解密
-    # type_marker 不需要解密
-    # 如果是圖像，header (34 bits) 也不需要解密，只解密像素資料
-    IMAGE_HEADER_SIZE = 34  # 圖像 header 固定 34 bits
-    
-    if len(encrypted_bits) < 1:
-        raise ValueError("Z 碼太短，無法提取類型標記")
-    
-    type_marker = encrypted_bits[0]  # type_marker 沒有被加密
-    encrypted_content = encrypted_bits[1:]  # 這些是 header + 加密後的內容
-    
-    if type_marker == 1 and len(encrypted_content) > IMAGE_HEADER_SIZE:
-        # 圖像：header 不解密，只解密像素資料
-        image_header = encrypted_content[:IMAGE_HEADER_SIZE]
-        encrypted_pixels = encrypted_content[IMAGE_HEADER_SIZE:]
-        decrypted_pixels = xor_decrypt(encrypted_pixels, contact_key)
-        content_bits = image_header + decrypted_pixels
-    else:
-        # 文字：全部解密
-        content_bits = xor_decrypt(encrypted_content, contact_key)
-    
-    # 重組 secret_bits（用於 info）
-    secret_bits = [type_marker] + content_bits
-
-    # 根據類型標記決定解碼方式
+    # 根據類型呼叫 extract_secret
     if type_marker == 0:
-        # 文字類型
-        try:
-            text = binary_to_text(content_bits)
-            return text, 'text', {
-                'type': 'text', 
-                'length': len(text),
-                'type_marker': type_marker,
-                'total_bits': len(secret_bits),
-                'content_bits': len(content_bits)
-            }
-        except Exception as e:
-            raise ValueError(f"文字解碼失敗: {e}")
+        secret, info = extract_secret(cover_image, z_bits, secret_type='text', contact_key=contact_key)
+        return secret, 'text', info
     else:
-        # 圖像類型
-        try:
-            img, size, is_color = binary_to_image(content_bits)
-            if img is not None:
-                return img, 'image', {
-                    'type': 'image', 
-                    'size': size, 
-                    'is_color': is_color,
-                    'type_marker': type_marker,
-                    'total_bits': len(secret_bits),
-                    'content_bits': len(content_bits)
-                }
-            else:
-                raise ValueError("圖像解碼返回 None")
-        except Exception as e:
-            # 解碼失敗 → 生成亂碼圖像
-            noise_size = 64  # 生成 64×64 的亂碼圖
-            noise_data = bytes([content_bits[i % len(content_bits)] * 255 if i < len(content_bits) else 128 
-                               for i in range(noise_size * noise_size)])
-            noise_img = Image.frombytes('L', (noise_size, noise_size), noise_data)
-            return noise_img, 'image', {
-                'type': 'image',
-                'size': (noise_size, noise_size),
-                'is_color': False,
-                'type_marker': type_marker,
-                'total_bits': len(secret_bits),
-                'content_bits': len(content_bits),
-                'error': f'解碼失敗（可能密鑰錯誤）: {str(e)[:50]}'
-            }
+        secret, info = extract_secret(cover_image, z_bits, secret_type='image', contact_key=contact_key)
+        return secret, 'image', info
