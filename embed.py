@@ -117,7 +117,7 @@ def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
             0.114 * cover_image[:, :, 2]    # B × 0.114
         ).astype(np.uint8)                  # 轉成整數 (0~255)
     
-    height, width = cover_image.shape       # 取得圖像尺寸
+    height, width = cover_image.shape       # 取得圖像尺寸（高, 寬）
     
     # 檢查圖像大小是否為 8 的倍數（系統以 8×8 區塊處理）
     if height % 8 != 0 or width % 8 != 0:
