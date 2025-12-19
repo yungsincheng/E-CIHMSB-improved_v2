@@ -25,7 +25,7 @@ def calculate_capacity(image_width, image_height):
         capacity: 可嵌入的 bits 數量
     
     公式:
-        EC = (W×H) / (8×8) × 21
+        EC = (W×H) ÷ (8×8) × 21
     """
     num_units = (image_width // BLOCK_SIZE) * (image_height // BLOCK_SIZE)
     capacity = num_units * TOTAL_AVERAGES_PER_UNIT
@@ -129,18 +129,18 @@ def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
     # num_cols = 512 ÷ 8 = 64
     # num_units = 64 × 64 = 4096 個區塊
     # capacity = 4096 × 21 = 86,016 bits
-    num_rows = height // BLOCK_SIZE  # 垂直方向有幾個 8×8 區塊
-    num_cols = width // BLOCK_SIZE   # 水平方向有幾個 8×8 區塊
-    num_units = num_rows * num_cols  # 總共幾個區塊
+    num_rows = height // BLOCK_SIZE                 # 垂直方向有幾個 8×8 區塊
+    num_cols = width // BLOCK_SIZE                  # 水平方向有幾個 8×8 區塊
+    num_units = num_rows * num_cols                 # 總共幾個區塊
     capacity = num_units * TOTAL_AVERAGES_PER_UNIT  # 每區塊 21 bits
     
     # 將機密內容轉成二進位（加入類型標記）
     if secret_type == 'text':
-        type_marker = [0]  # 0 = 文字
+        type_marker = [0]                      # 0 = 文字
         content_bits = text_to_binary(secret)  # "Hi" → [0,1,0,0,1,0,0,0,...]
         info = {'type': 'text', 'length': len(secret), 'bits': len(content_bits) + 1}
     else:
-        type_marker = [1]  # 1 = 圖像
+        type_marker = [1]                                   # 1 = 圖像
         content_bits, size, mode = image_to_binary(secret)  # PIL Image → 二進位
         info = {'type': 'image', 'size': size, 'mode': mode, 'bits': len(content_bits) + 1}
     
@@ -165,7 +165,7 @@ def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
         # [type_marker 1 bit] + [header 34 bits] + XOR([像素資料])
         #      不加密              不加密              加密
         image_header = content_bits[:IMAGE_HEADER_SIZE]   # 寬、高、色彩模式
-        pixel_data = content_bits[IMAGE_HEADER_SIZE:]   # 像素資料
+        pixel_data = content_bits[IMAGE_HEADER_SIZE:]     # 像素資料
         encrypted_pixels = xor_encrypt(pixel_data, contact_key)
         encrypted_bits = type_marker + image_header + encrypted_pixels
     else:
@@ -187,7 +187,7 @@ def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
     secret_bit_index = 0
     finished = False
     
-    for i in range(num_rows):  # i = 第幾列區塊
+    for i in range(num_rows):      # i = 第幾列區塊
         if finished:
             break
         
@@ -234,8 +234,8 @@ def embed_secret(cover_image, secret, secret_type='text', contact_key=None):
                     break
                 
                 secret_bit = encrypted_bits[secret_bit_index]  # 要嵌入的 bit
-                msb = msbs[k]   # 對應的 MSB
-                z_bit = map_to_z(secret_bit, msb)  # (M, MSB) → Z
+                msb = msbs[k]                                  # 對應的 MSB
+                z_bit = map_to_z(secret_bit, msb)              # (M, MSB) → Z
                 z_bits.append(z_bit)
                 secret_bit_index += 1
     
