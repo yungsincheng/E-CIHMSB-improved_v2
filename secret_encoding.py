@@ -5,6 +5,51 @@ import numpy as np
 import math
 from PIL import Image
 
+# XOR 加解密（加密和解密通用）
+def xor_cipher(bits, key):
+    """
+    功能:
+        用 key 對 bits 進行 XOR 運算（加密/解密通用）
+    
+    參數:
+        bits: 要處理的位元列表
+        key: 密鑰字串
+    
+    返回:
+        result_bits: 運算後的位元列表
+
+    原理:
+        XOR 運算：相同為 0，不同為 1
+        0 ^ 0 = 0
+        0 ^ 1 = 1
+        1 ^ 0 = 1
+        1 ^ 1 = 0
+        
+        特性：
+        - 原文 XOR 密鑰 = 密文
+        - 密文 XOR 密鑰 = 原文
+        因此加密和解密用同一個函式
+    """
+    if not key:  # 沒有 key 就不處理
+        return bits  
+    
+    # 用 key 生成足夠長的密鑰流
+    # SHA-256 每次產生 32 bytes (256 bits)，不夠就重複 hash
+    key_bits = []
+    key_hash = hashlib.sha256(key.encode()).digest()                # 把 key 轉成 32 bytes 的 hash，例如 "Alice" → 32 bytes
+    
+    while len(key_bits) < len(bits):
+        for byte in key_hash:                                       # 每個 byte (0~255)
+            key_bits.extend([int(b) for b in format(byte, '08b')])  # 轉成 8 bits，例如 72 → [0,1,0,0,1,0,0,0]
+            if len(key_bits) >= len(bits):
+                break
+        key_hash = hashlib.sha256(key_hash).digest()                # 不夠就再 hash 一次，產生更多 bits
+    
+    # XOR 運算
+    # 例如: bits = [1,0,1], key_bits = [0,1,1]
+    #       結果 = [1^0, 0^1, 1^1] = [1, 1, 0]
+    return [bits[i] ^ key_bits[i] for i in range(len(bits))]
+    
 # 文字編碼
 def text_to_binary(text):
     """
