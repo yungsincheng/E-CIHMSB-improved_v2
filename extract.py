@@ -16,7 +16,7 @@ from secret_encoding import binary_to_text, binary_to_image
 def xor_decrypt(encrypted_bits, key):
     """
     功能:
-        用 contact_key 對加密位元進行 XOR 解密
+        用 key 對 encrypted_bits 進行 XOR 解密
     
     參數:
         encrypted_bits: 要解密的加密位元列表
@@ -41,16 +41,16 @@ def xor_decrypt(encrypted_bits, key):
     # 用 key 生成足夠長的密鑰流
     # SHA-256 每次產生 32 bytes (256 bits)，不夠就重複 hash
     key_bits = []
-    key_hash = hashlib.sha256(key.encode()).digest()  # 把 key 轉成 32 bytes 的 hash，例如 "Alice" → 32 bytes
+    key_hash = hashlib.sha256(key.encode()).digest()                # 把 key 轉成 32 bytes 的 hash，例如 "Alice" → 32 bytes
     
     while len(key_bits) < len(encrypted_bits):
-        for byte in key_hash:
+        for byte in key_hash:                                       # 每個 byte (0~255)
             key_bits.extend([int(b) for b in format(byte, '08b')])  # 轉成 8 bits，例如 72 → [0,1,0,0,1,0,0,0]
             if len(key_bits) >= len(encrypted_bits):
                 break
-        key_hash = hashlib.sha256(key_hash).digest()  # 不夠就再 hash 一次，產生更多 bits
+        key_hash = hashlib.sha256(key_hash).digest()                # 不夠就再 hash 一次，產生更多 bits
     
-    # XOR 運算（解密和加密相同）
+    # XOR 解密
     # 例如: encrypted_bits = [1,1,0], key_bits = [0,1,1]
     #       結果 = [1^0, 1^1, 0^1] = [1, 0, 1]
     decrypted_bits = [encrypted_bits[i] ^ key_bits[i] for i in range(len(encrypted_bits))]
@@ -94,9 +94,9 @@ def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
             0.299 * cover_image[:, :, 0] +  # R × 0.299 
             0.587 * cover_image[:, :, 1] +  # G × 0.587
             0.114 * cover_image[:, :, 2]    # B × 0.114
-        ).astype(np.uint8)  # 轉成整數 (0~255)
+        ).astype(np.uint8)                  # 轉成整數 (0~255)
     
-    height, width = cover_image.shape  # 取得圖像尺寸
+    height, width = cover_image.shape       # 取得圖像尺寸（高, 寬）
     
     # 檢查圖像大小是否為 8 的倍數（系統以 8×8 區塊處理）
     if height % 8 != 0 or width % 8 != 0:
@@ -112,7 +112,7 @@ def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
     z_bit_index = 0
     finished = False
     
-    for i in range(num_rows):  # i = 第幾列區塊
+    for i in range(num_rows):      # i = 第幾列區塊
         if finished:
             break
         
@@ -158,8 +158,8 @@ def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
                     finished = True
                     break
                 
-                z_bit = z_bits[z_bit_index]  # Z 碼的 bit
-                msb = msbs[k]                 # 對應的 MSB
+                z_bit = z_bits[z_bit_index]             # Z 碼的 bit
+                msb = msbs[k]                           # 對應的 MSB
                 encrypted_bit = map_from_z(z_bit, msb)  # (Z, MSB) → M
                 encrypted_bits.append(encrypted_bit)
                 z_bit_index += 1
@@ -173,7 +173,7 @@ def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
         raise ValueError("提取的位元數不足，無法讀取類型標記")
     
     type_marker = encrypted_bits[0]           # type_marker 沒有被加密
-    encrypted_content = encrypted_bits[1:]    # 這些是 header + 加密後的內容
+    encrypted_content = encrypted_bits[1:]    # type_marker 之後的所有位元
     
     if type_marker == 1 and len(encrypted_content) > IMAGE_HEADER_SIZE:
         # 圖像解密結構：
@@ -189,9 +189,9 @@ def extract_secret(cover_image, z_bits, secret_type='text', contact_key=None):
         #      不解密                  解密
         content_bits = xor_decrypt(encrypted_content, contact_key)
     
-    # 步驟 5：將機密位元轉回原始內容
-    secret_bits = [type_marker] + content_bits  # 重組（用於 info）
-    
+    secret_bits = [type_marker] + content_bits  # 重組完整位元（用於計算 total_bits）
+
+     # 步驟 5：將機密位元轉回原始內容
     if secret_type == 'text':
         secret = binary_to_text(content_bits)
         info = {
@@ -239,13 +239,13 @@ def detect_and_extract(cover_image, z_bits, contact_key=None):
     
     參數:
         cover_image: 載體圖像
-        z_bits: Z 碼
+        z_bits: Z 碼位元列表
         contact_key: 對象專屬密鑰（字串），用於解密
     
     返回:
         secret: 機密內容
         secret_type: 'text' 或 'image'
-        info: 額外資訊
+        info: 額外資訊（機密內容的相關資訊）
     
     原理:
         1. 從第一個區塊提取 type_marker（第 1 bit）
