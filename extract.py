@@ -248,13 +248,13 @@ def detect_and_extract(cover_image, z_bits, contact_key=None):
         info: 額外資訊（機密內容的相關資訊）
     
     原理:
-        1. 從第一個區塊提取 type_marker（第 1 bit）
+        1. 從第一個區塊提取 type_marker（第 1 個 bit）
+           類型標記: 0 = 文字, 1 = 圖像
         2. 根據 type_marker 呼叫 extract_secret
-        類型標記: 0 = 文字, 1 = 圖像
     """
     cover_image = np.array(cover_image)
     
-    # 圖像預處理（只為了讀取 type_marker）
+    # 圖像預處理（轉灰階）
     if len(cover_image.shape) == 3:
         cover_image = (
             0.299 * cover_image[:, :, 0] + 
@@ -268,7 +268,7 @@ def detect_and_extract(cover_image, z_bits, contact_key=None):
     averages_21 = calculate_hierarchical_averages(block)
     reordered = apply_Q_three_rounds(averages_21, Q)
     msbs = get_msbs(reordered)
-    type_marker = map_from_z(z_bits[0], msbs[0])  # 讀取第 1 bit
+    type_marker = map_from_z(z_bits[0], msbs[0])  # 讀取第 1 個 bit
     
     # 根據類型呼叫 extract_secret
     if type_marker == 0:
