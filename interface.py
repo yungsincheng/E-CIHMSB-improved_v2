@@ -413,53 +413,42 @@ def download_image_by_id(pexels_id, size):
     return img, img.convert('L')
 
 # ==================== 圖像容量計算 ====================
-def calculate_required_bits_for_image(image, target_capacity=None):
+def calculate_required_bits_for_image(image):
     """
     功能:
-        計算圖像作為機密時所需的位元數，或根據目標容量計算縮放後的尺寸
+        計算圖像作為機密時所需的位元數
     
     參數:
         image: PIL Image 物件
-        target_capacity: 目標容量（位元），若為 None 則計算原始大小所需位元
     
     返回:
         tuple: (所需位元數, 圖像尺寸)
     """
-    original_size, original_mode = image.size, image.mode
-    is_color = original_mode not in ['L', '1', 'LA']
+    size, mode = image.size, image.mode
+    is_color = mode not in ['L', '1', 'LA']
     
+    # 判斷是否有透明通道
     if not is_color:
         has_alpha = False
-    elif original_mode == 'P':
+    elif mode == 'P':
         temp_img = image.convert('RGBA')
-        if temp_img.mode == 'RGBA':
-            alpha_channel = temp_img.split()[-1]
-            has_alpha = alpha_channel.getextrema()[0] < 255
-        else:
-            has_alpha = False
-    elif original_mode in ['RGBA', 'PA']:
+        alpha_channel = temp_img.split()[-1]
+        has_alpha = alpha_channel.getextrema()[0] < 255
+    elif mode in ['RGBA', 'PA']:
         has_alpha = True
     else:
         has_alpha = False
     
+    # 計算所需位元數
+    header_bits = 34
     if is_color:
-        header_bits = 34
         bits_per_pixel = 32 if has_alpha else 24
     else:
-        header_bits, bits_per_pixel = 34, 8
+        bits_per_pixel = 8
     
-    if target_capacity is None:
-        w, h = original_size[0], original_size[1]
-        return header_bits + w * h * bits_per_pixel, (w, h)
+    required_bits = header_bits + size[0] * size[1] * bits_per_pixel
     
-    max_pixels = (target_capacity - header_bits) // bits_per_pixel
-    current_pixels = original_size[0] * original_size[1]
-    if current_pixels <= max_pixels:
-        scaled = original_size
-    else:
-        ratio = math.sqrt(max_pixels / current_pixels)
-        scaled = (max(8, (int(original_size[0] * ratio) // 8) * 8), max(8, (int(original_size[1] * ratio) // 8) * 8))
-    return header_bits + scaled[0] * scaled[1] * bits_per_pixel, scaled
+    return required_bits, size
 
 # ==================== Streamlit 頁面配置 ====================
 st.set_page_config(page_title="🔐 高效能無載體之機密編碼技術", page_icon="🔐", layout="wide", initial_sidebar_state="collapsed")
