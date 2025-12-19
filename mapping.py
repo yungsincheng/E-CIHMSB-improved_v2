@@ -1,8 +1,23 @@
-
 # 建立 mapping.py → 映射模組
 
-from config import MAPPING_TABLE, REVERSE_MAPPING_TABLE
+# ==================== MSB 映射表 ====================
+# 正向映射表(論文的表1)：(M,MSB)→Z
+MAPPING_TABLE = {
+    (0, 0): 1,
+    (0, 1): 0,
+    (1, 0): 0,
+    (1, 1): 1
+}
 
+# 反向映射表：(Z,MSB)→M
+REVERSE_MAPPING_TABLE = {
+    (1, 0): 0,
+    (0, 0): 1,
+    (1, 1): 1,
+    (0, 1): 0
+}
+
+# ==================== 映射函式 ====================
 def map_to_z(secret_bit, msb):
   """
   功能:
