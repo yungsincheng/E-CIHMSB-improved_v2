@@ -1,4 +1,5 @@
-# 建立 interface.py → 介面
+# 建立 interface.py → 介面模組
+# Streamlit 網頁介面，提供嵌入和提取功能
 
 import streamlit as st
 import streamlit.components.v1 as components
@@ -20,6 +21,7 @@ def load_pyzbar():
     from pyzbar.pyzbar import decode as decode_qr
     return decode_qr
 
+# 載入自訂模組
 from config import *
 from embed import embed_secret, calculate_capacity
 from extract import detect_and_extract
@@ -27,8 +29,18 @@ from secret_encoding import text_to_binary, image_to_binary, binary_to_image
 from text_encoding import z_to_text, text_to_z
 from image_encoding import z_to_image_with_header, image_to_z_with_header
 
+# ==================== 輔助函數 ====================
 def is_likely_garbled_text(text):
-    """檢測文字是否可能是亂碼"""
+    """
+    功能:
+        檢測文字是否可能是亂碼
+    
+    參數:
+        text: 要檢測的文字
+    
+    返回:
+        bool: True 表示可能是亂碼
+    """
     if not text or len(text) == 0:
         return True
     
@@ -53,7 +65,16 @@ def is_likely_garbled_text(text):
     return False
 
 def is_likely_garbled_image(image_data):
-    """檢測圖像是否可能是亂碼（雜訊圖）"""
+    """
+    功能:
+        檢測圖像是否可能是亂碼（雜訊圖）
+    
+    參數:
+        image_data: 圖像的 bytes 資料
+    
+    返回:
+        bool: True 表示可能是亂碼
+    """
     try:
         img = Image.open(BytesIO(image_data))
         img_array = np.array(img.convert('RGB'))
@@ -68,9 +89,21 @@ def is_likely_garbled_image(image_data):
         return avg_diff > 50
     except:
         return True
-    
-# ==================== 生成高質量圖片函數 ====================
+
 def generate_gradient_image(size, color1, color2, direction='horizontal'):
+    """
+    功能:
+        生成漸層圖片（當網路下載失敗時的備用圖）
+    
+    參數:
+        size: 圖片尺寸
+        color1: 起始顏色 (R, G, B)
+        color2: 結束顏色 (R, G, B)
+        direction: 漸層方向 ('horizontal' 或 'vertical')
+    
+    返回:
+        img: PIL Image 物件
+    """
     img = Image.new('RGB', (size, size))
     for i in range(size):
         ratio = i / size
@@ -84,9 +117,17 @@ def generate_gradient_image(size, color1, color2, direction='horizontal'):
                 img.putpixel((j, i), (r, g, b))
     return img
 
-# ==================== Icon 圖片轉 Base64 ====================
 def get_icon_base64(icon_name):
-    """讀取 icons 資料夾的圖片並轉成 base64"""
+    """
+    功能:
+        讀取 icons 資料夾的圖片並轉成 base64
+    
+    參數:
+        icon_name: 圖示名稱（不含副檔名）
+    
+    返回:
+        str: base64 編碼的圖片資料 URI，若檔案不存在則返回空字串
+    """
     icon_path = os.path.join("icons", f"{icon_name}.png")
     if os.path.exists(icon_path):
         with open(icon_path, "rb") as f:
@@ -102,12 +143,24 @@ if 'extract_result' not in st.session_state:
 
 # ==================== 對象管理（Supabase 雲端儲存）====================
 def generate_contact_key():
-    """生成對象專屬密鑰（32 字元隨機字串）"""
+    """
+    功能:
+        生成對象專屬密鑰（32 字元隨機十六進位字串）
+    
+    返回:
+        str: 32 字元的隨機密鑰
+    """
     import secrets
     return secrets.token_hex(16)  # 32 字元的十六進位字串
 
 def get_supabase_client():
-    """取得 Supabase 客戶端"""
+    """
+    功能:
+        取得 Supabase 客戶端連線
+    
+    返回:
+        Client: Supabase 客戶端物件，若連線失敗則返回 None
+    """
     try:
         from supabase import create_client
         url = st.secrets["SUPABASE_URL"]
@@ -117,7 +170,13 @@ def get_supabase_client():
         return None
 
 def load_contacts():
-    """從 Supabase 讀取對象資料"""
+    """
+    功能:
+        從 Supabase 讀取對象資料，若失敗則嘗試讀取本地 JSON
+    
+    返回:
+        dict: 對象資料字典，格式為 {名稱: {"style": 風格, "key": 密鑰}}
+    """
     try:
         supabase = get_supabase_client()
         if supabase:
@@ -149,7 +208,16 @@ def load_contacts():
     return {}
 
 def save_contacts(contacts):
-    """儲存對象資料到 Supabase"""
+    """
+    功能:
+        儲存對象資料到 Supabase，若失敗則嘗試寫入本地 JSON
+    
+    參數:
+        contacts: 對象資料字典
+    
+    返回:
+        bool: 儲存是否成功
+    """
     try:
         supabase = get_supabase_client()
         if supabase:
@@ -175,7 +243,17 @@ def save_contacts(contacts):
     return False
 
 def get_contact_style(contacts, name):
-    """取得對象的風格"""
+    """
+    功能:
+        取得指定對象的風格設定
+    
+    參數:
+        contacts: 對象資料字典
+        name: 對象名稱
+    
+    返回:
+        str: 風格名稱，若不存在則返回 None
+    """
     if name in contacts:
         data = contacts[name]
         if isinstance(data, dict):
@@ -184,7 +262,17 @@ def get_contact_style(contacts, name):
     return None
 
 def get_contact_key(contacts, name):
-    """取得對象的密鑰"""
+    """
+    功能:
+        取得指定對象的專屬密鑰
+    
+    參數:
+        contacts: 對象資料字典
+        name: 對象名稱
+    
+    返回:
+        str: 對象密鑰，若不存在則返回 None
+    """
     if name in contacts:
         data = contacts[name]
         if isinstance(data, dict):
@@ -195,7 +283,6 @@ if 'contacts' not in st.session_state:
     st.session_state.contacts = load_contacts()
 
 # ==================== 圖片庫設定 ====================
-# 風格帶編號
 STYLE_CATEGORIES = {
     "1. 建築": "建築", 
     "2. 動物": "動物", 
@@ -204,7 +291,6 @@ STYLE_CATEGORIES = {
     "5. 交通": "交通",
 }
 
-# 風格編號對應表
 STYLE_TO_NUM = {
     "1. 建築": 1, "2. 動物": 2, "3. 植物": 3, "4. 食物": 4, "5. 交通": 5,
     "建築": 1, "動物": 2, "植物": 3, "食物": 4, "交通": 5,
@@ -262,8 +348,18 @@ IMAGE_LIBRARY = {
     ],
 }
 
+# ==================== 圖片下載與處理 ====================
 def get_recommended_size(secret_bits):
-    """根據機密大小推薦最小適合尺寸"""
+    """
+    功能:
+        根據機密大小推薦最小適合的載體圖像尺寸
+    
+    參數:
+        secret_bits: 機密所需的位元數
+    
+    返回:
+        int: 推薦的圖像尺寸（邊長）
+    """
     for size in AVAILABLE_SIZES:
         capacity = calculate_capacity(size, size)
         if capacity >= secret_bits:
@@ -272,7 +368,17 @@ def get_recommended_size(secret_bits):
 
 @st.cache_data(ttl=86400, show_spinner=False)
 def download_image_cached(pexels_id, size):
-    """下載並快取圖片（持久化）"""
+    """
+    功能:
+        從 Pexels 下載圖片並快取（快取有效期 24 小時）
+    
+    參數:
+        pexels_id: Pexels 圖片 ID
+        size: 請求的圖片尺寸
+    
+    返回:
+        bytes: 圖片的二進位資料，若下載失敗則返回 None
+    """
     url = f"https://images.pexels.com/photos/{pexels_id}/pexels-photo-{pexels_id}.jpeg?auto=compress&cs=tinysrgb&w={size}&h={size}&fit=crop"
     try:
         response = requests.get(url, timeout=10)
@@ -283,7 +389,17 @@ def download_image_cached(pexels_id, size):
     return None
 
 def download_image_by_id(pexels_id, size):
-    """下載指定 ID 和尺寸的圖片"""
+    """
+    功能:
+        下載指定 ID 和尺寸的圖片，並轉換為 RGB 和灰階版本
+    
+    參數:
+        pexels_id: Pexels 圖片 ID
+        size: 目標圖片尺寸
+    
+    返回:
+        tuple: (RGB 圖片, 灰階圖片)，若下載失敗則返回漸層備用圖
+    """
     image_data = download_image_cached(pexels_id, size)
     
     if image_data:
@@ -296,8 +412,19 @@ def download_image_by_id(pexels_id, size):
     img = generate_gradient_image(size, (100, 150, 200), (150, 200, 250))
     return img, img.convert('L')
 
-# ==================== 輔助函數 ====================
+# ==================== 圖像容量計算 ====================
 def calculate_required_bits_for_image(image, target_capacity=None):
+    """
+    功能:
+        計算圖像作為機密時所需的位元數，或根據目標容量計算縮放後的尺寸
+    
+    參數:
+        image: PIL Image 物件
+        target_capacity: 目標容量（位元），若為 None 則計算原始大小所需位元
+    
+    返回:
+        tuple: (所需位元數, 圖像尺寸)
+    """
     original_size, original_mode = image.size, image.mode
     is_color = original_mode not in ['L', '1', 'LA']
     
@@ -2191,7 +2318,7 @@ elif st.session_state.current_mode == 'embed':
                     with row1_col2:
                         img_idx = st.selectbox("圖像", range(len(images)), format_func=lambda i: image_options[i], key="embed_img_select_h")
                     
-                    available_sizes = [s for s in AVAILABLE_SIZES if calculate_image_capacity(s) >= secret_bits_needed]
+                    available_sizes = [s for s in AVAILABLE_SIZES if calculate_capacity(s, s) >= secret_bits_needed]
                     if not available_sizes:
                         available_sizes = [AVAILABLE_SIZES[-1]]
                     recommended_size = available_sizes[0]
@@ -2306,7 +2433,7 @@ elif st.session_state.current_mode == 'embed':
             secret_bits_needed = st.session_state.get('secret_bits_saved', 0)
             
             if secret_bits_needed > capacity:
-                st.markdown(f'<div class="error-box">❌ 容量不足！機密大小 ({secret_bits_needed:,} bits) 超過載體容量 ({capacity:,} bits)，請選擇更大的載體尺寸。</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="error-box">容量不足！機密大小 ({secret_bits_needed:,} bits) 超過載體容量 ({capacity:,} bits)，請選擇更大的載體尺寸。</div>', unsafe_allow_html=True)
                 st.stop()
                 
             processing_placeholder = st.empty()
@@ -2325,7 +2452,7 @@ elif st.session_state.current_mode == 'embed':
                 image_size = st.session_state.get('embed_image_size')
                 style_num = st.session_state.get('embed_style_num', 1)
                 _, img_process = download_image_by_id(image_id, image_size)
-                capacity = calculate_image_capacity(image_size)
+                capacity = calculate_capacity(image_size, image_size)
                 
                 # 取得對象密鑰
                 selected_contact = st.session_state.get('selected_contact_saved', None)
@@ -2368,7 +2495,7 @@ elif st.session_state.current_mode == 'embed':
                 st.rerun()
             except Exception as e:
                 processing_placeholder.empty()
-                st.markdown(f'<div class="error-box">❌ 嵌入失敗! {e}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="error-box">嵌入失敗! {e}</div>', unsafe_allow_html=True)
 
 else:
     # ==================== 提取模式 ====================
@@ -2944,7 +3071,7 @@ else:
                             st.rerun()
                 except Exception as e:
                     processing_placeholder.empty()
-                    st.markdown(f'<div class="error-box">❌ 提取失敗! {e}</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="error-box">提取失敗! {e}</div>', unsafe_allow_html=True)
         
         # 固定返回按鈕到左下角
         components.html("""
