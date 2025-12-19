@@ -151,7 +151,7 @@ def generate_contact_key():
         str: 32 字元的隨機密鑰
     """
     import secrets
-    return secrets.token_hex(16)  # 32 字元的十六進位字串
+    return secrets.token_hex(16) 
 
 def get_supabase_client():
     """
