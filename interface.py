@@ -1894,7 +1894,7 @@ elif st.session_state.current_mode == 'embed':
                     style_num_int = int(style_num)
                     img_num_int = int(img_num)
                     img_size_int = int(img_size)
-                    z_img, _ = encode_z_as_image_with_header(r['z_bits'], style_num_int, img_num_int, img_size_int)
+                    z_img, _ = z_to_image_with_header(r['z_bits'], style_num_int, img_num_int, img_size_int)
                     
                     st.markdown('<p style="font-size: 38px; font-weight: bold; color: #443C3C; margin-bottom: 25px;">Z碼圖</p>', unsafe_allow_html=True)
                     st.image(z_img, width=200)
@@ -1907,7 +1907,7 @@ elif st.session_state.current_mode == 'embed':
                 style_num = r.get("style_num", 1)
                 img_num = int(r["embed_image_choice"].split("-")[1])
                 img_size = int(r["embed_image_choice"].split("-")[2])
-                z_img, _ = encode_z_as_image_with_header(r['z_bits'], style_num, img_num, img_size)
+                z_img, _ = z_to_image_with_header(r['z_bits'], style_num, img_num, img_size)
                 
                 st.markdown('<p style="font-size: 38px; font-weight: bold; color: #443C3C; margin-bottom: 25px;">Z碼圖</p>', unsafe_allow_html=True)
                 st.image(z_img, width=200)
@@ -2808,7 +2808,7 @@ else:
                             extract_style_num = style_num
                             extract_img_num = img_num
                             extract_img_size = img_size
-                            extract_z_text = ''.join(str(b) for b in z_bits)
+                            extract_z_text = z_to_text(z_bits)
                             style_name = NUM_TO_STYLE.get(extract_style_num, "建築")
                             images = IMAGE_LIBRARY.get(style_name, [])
                             img_name = images[extract_img_num - 1]['name'] if extract_img_num <= len(images) else str(extract_img_num)
