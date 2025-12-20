@@ -2775,8 +2775,6 @@ else:
                     else:
                         st.image(uploaded_img, width=150)
                         st.markdown(f'<p style="font-size: 22px; color: #C62828; margin-top: 10px;">無法識別</p>', unsafe_allow_html=True)
-                        if error_msg:
-                            st.markdown(f'<p style="font-size: 14px; color: #443C3C;">{error_msg}</p>', unsafe_allow_html=True)
             else:
                 st.markdown('<p style="font-size: 24px; color: #999; text-align: center;">請先完成第一步</p>', unsafe_allow_html=True)
         
