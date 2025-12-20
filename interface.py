@@ -2358,7 +2358,7 @@ else:
                 spacer1, center_col, spacer2 = st.columns([1, 2, 1])
                 
                 with center_col:
-                    st.markdown(f'<p style="font-size: 28px; font-weight: bold; color: #C62828; margin-bottom: 15px; text-align: center;">提取失敗! ({r["elapsed_time"]:.2f} 秒)</p>', unsafe_allow_html=True)
+                    st.markdown(f'<p style="font-size: 28px; font-weight: bold; color: #C62828; margin-bottom: 15px; text-align: center;">提取失敗 ! ({r["elapsed_time"]:.2f} 秒)</p>', unsafe_allow_html=True)
                     st.markdown('<p style="font-size: 24px; font-weight: bold; color: #C62828; text-align: center;">機密文字:</p>', unsafe_allow_html=True)
                     display_text = r["content"][:100] + "..." if len(r["content"]) > 100 else r["content"]
                     st.markdown(f'<p style="font-size: 18px; color: #666; line-height: 1.6; word-break: break-all; text-align: center;">{html.escape(display_text)}</p>', unsafe_allow_html=True)
@@ -2438,7 +2438,7 @@ else:
                 # ===== 亂碼情況：提取失敗（置中）=====
                 st.markdown(f'''
                 <div style="text-align: center;">
-                    <div style="font-size: 40px; font-weight: bold; color: #C62828; margin-bottom: 40px;">提取失敗! ({r["elapsed_time"]:.2f} 秒)</div>
+                    <div style="font-size: 40px; font-weight: bold; color: #C62828; margin-bottom: 40px;">提取失敗 ! ({r["elapsed_time"]:.2f} 秒)</div>
                     <div style="font-size: 35px; font-weight: bold; color: #C62828; margin-bottom: 20px;">機密圖像:</div>
                 </div>
                 ''', unsafe_allow_html=True)
@@ -2885,7 +2885,7 @@ else:
                             st.rerun()
                 except Exception as e:
                     processing_placeholder.empty()
-                    st.markdown(f'<div class="error-box">提取失敗! {e}</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="error-box">提取失敗 ! {e}</div>', unsafe_allow_html=True)
         
         # 固定返回按鈕到左下角
         components.html("""
