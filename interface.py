@@ -852,63 +852,6 @@ h3 { font-size: clamp(28px, 3vw, 36px) !important; font-weight: bold !important;
     display: none !important;
 }
 
-/* ----- 強制隱藏 textarea 所有滾動條 ----- */
-.stTextArea,
-.stTextArea > div,
-.stTextArea > div > div,
-.stTextArea > div > div > div,
-.stTextArea [data-baseweb="textarea"],
-.stTextArea [data-baseweb="textarea"] > div,
-.stTextArea [data-baseweb="base-input"],
-.stTextArea [data-testid="stTextAreaRootContainer"],
-.stTextArea [data-testid="stTextAreaRootContainer"] > div,
-.stTextArea [data-testid="stTextAreaRootContainer"] > div > div {
-    overflow: hidden !important;
-    overflow-y: hidden !important;
-    overflow-x: hidden !important;
-    scrollbar-width: none !important;
-    -ms-overflow-style: none !important;
-}
-
-/* 隱藏外層所有滾動條軌道 */
-.stTextArea *:not(textarea)::-webkit-scrollbar {
-    display: none !important;
-    width: 0 !important;
-    height: 0 !important;
-    background: transparent !important;
-}
-
-/* textarea 本身也隱藏滾動條但可滾動 */
-.stTextArea textarea {
-    overflow: auto !important;
-    overflow-y: auto !important;
-    scrollbar-width: none !important;
-    -ms-overflow-style: none !important;
-}
-
-/* 隱藏 textarea 本身的滾動條 */
-.stTextArea textarea::-webkit-scrollbar {
-    display: none !important;
-    width: 0 !important;
-    height: 0 !important;
-}
-
-/* 額外強制：所有 stTextArea 相關元素的滾動條 */
-[data-testid="stTextAreaRootContainer"],
-[data-testid="stTextAreaRootContainer"] *,
-.stTextArea [class*="TextArea"],
-.stTextArea [class*="textarea"] {
-    scrollbar-width: none !important;
-    -ms-overflow-style: none !important;
-}
-
-[data-testid="stTextAreaRootContainer"]::-webkit-scrollbar,
-[data-testid="stTextAreaRootContainer"] *::-webkit-scrollbar {
-    display: none !important;
-    width: 0 !important;
-    height: 0 !important;
-}
-
 /* ----- Caption 樣式（檔案上傳提示文字）----- */
 .stCaption, [data-testid="stCaptionContainer"] {
     color: #443C3C !important;
