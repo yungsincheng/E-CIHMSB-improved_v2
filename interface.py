@@ -901,8 +901,6 @@ ul[role="listbox"] li:hover,
     background-color: #dce0e0 !important;
 }
 
-
-
 [data-baseweb="select"] [data-testid="stMarkdownContainer"],
 [data-baseweb="select"] div[class*="singleValue"] {
     overflow: visible !important;
@@ -948,6 +946,32 @@ ul[role="listbox"] li:hover,
     .block-container {
         padding-top: 1rem !important;
     }
+}
+
+/* ----- 下載按鈕樣式（Z碼圖、圖像）----- */
+[data-testid="stDownloadButton"] button {
+    background-color: #c9b89a !important;
+    color: #443C3C !important;
+    border: none !important;
+    font-weight: 700 !important;
+    font-size: 24px !important;
+    min-width: 120px !important;
+    padding: 8px 18px !important;
+}
+
+[data-testid="stDownloadButton"] button p,
+[data-testid="stDownloadButton"] button span {
+    font-weight: 700 !important;
+    font-size: 24px !important;
+}
+
+[data-testid="stDownloadButton"] button:hover {
+    background-color: #b8a788 !important;
+}
+
+[data-testid="stDownloadButton"] button:active,
+[data-testid="stDownloadButton"] button:focus {
+    background-color: #d9c8aa !important;
 }
 
 /* ----- 其他間距調整 ----- */
@@ -1131,6 +1155,8 @@ if st.session_state.current_mode is not None:
 # ==================== 主要邏輯：根據 current_mode 顯示不同頁面 ====================
 if st.session_state.current_mode is None:
     # ==================== 首頁 ====================
+
+    # ----- 首頁專用樣式：禁止滾動、全螢幕顯示 -----
     st.markdown("""
     <style>
     html, body, [data-testid="stAppViewContainer"], .main, [data-testid="stMain"] {
@@ -1148,13 +1174,14 @@ if st.session_state.current_mode is None:
     }
     </style>
     """, unsafe_allow_html=True)
-    
+
+    # ----- 載入首頁卡片用的圖示 -----
     icon_secret = get_icon_base64("secret-message")
     icon_image = get_icon_base64("public-image")
     icon_arrow = get_icon_base64("arrow")
     icon_zcode = get_icon_base64("z-code")
     
-    # 使用 Flexbox 佈局的首頁
+    # ----- 首頁 HTML：標題 + 嵌入/提取卡片 + 組員名單 -----
     components.html(f"""
     <!DOCTYPE html>
     <html>
@@ -1174,7 +1201,7 @@ if st.session_state.current_mode is None:
         align-items: center;
     }}
     
-    /* ===== Flexbox 佈局 ===== */
+    /* Flexbox 三區塊佈局：標題、卡片、組員 */
     .home-fullscreen {{
         width: 100%;
         height: 100%;
@@ -1208,7 +1235,8 @@ if st.session_state.current_mode is None:
         font-weight: 500;
         flex-shrink: 0;
     }}
-    
+
+    /* 標題漸層色 */
     .welcome-title {{
         font-size: clamp(35px, 5.5vw, 100px);
         font-weight: bold;
@@ -1219,7 +1247,8 @@ if st.session_state.current_mode is None:
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }}
-    
+
+    /* 卡片基礎樣式 */
     .anim-card {{
         width: clamp(280px, 38vw, 620px);
         height: clamp(200px, 28vw, 420px);
@@ -1234,15 +1263,18 @@ if st.session_state.current_mode is None:
         justify-content: center;
         align-items: center;
     }}
-    
+
+    /* 卡片 hover 效果 */
     .anim-card:hover {{
         transform: translateY(-8px) scale(1.02);
         box-shadow: 12px 12px 0px 0px rgba(60, 80, 100, 0.5);
     }}
-    
+
+    /* 嵌入卡片（藍色）、提取卡片（粉色）*/
     .anim-card-embed {{ background: linear-gradient(145deg, #7BA3C4 0%, #5C8AAD 100%); }}
     .anim-card-extract {{ background: linear-gradient(145deg, #C4A0AB 0%, #A67B85 100%); }}
-    
+
+    /* 卡片內的圖示流程區 */
     .anim-flow {{
         display: flex;
         align-items: center;
@@ -1268,7 +1300,8 @@ if st.session_state.current_mode is None:
         color: white;
         font-weight: bold;
     }}
-    
+
+    /* 卡片標題和描述 */
     .anim-title {{
         font-size: clamp(28px, 4.5vw, 68px);
         font-weight: bold;
@@ -1284,7 +1317,7 @@ if st.session_state.current_mode is None:
         white-space: nowrap;
     }}
     
-    /* 統一脈動動畫 - 排除載體圖（第2張） */
+    /* 圖示脈動動畫（排除載體圖）*/
     .anim-card-embed img:not(:nth-of-type(2)),
     .anim-card-extract img:not(:nth-of-type(2)) {{
         animation: pulse 1.5s ease-in-out infinite;
@@ -1298,10 +1331,12 @@ if st.session_state.current_mode is None:
     </head>
     <body>
     <div class="home-fullscreen">
+        <!-- 標題 -->
         <div class="welcome-container">
             <div class="welcome-title">高效能無載體之機密編碼技術</div>
         </div>
-        
+
+        <!-- 嵌入/提取卡片 -->
         <div class="cards-container">
             <div class="anim-card anim-card-embed" onclick="clickEmbed()">
                 <div class="anim-flow">
@@ -1327,7 +1362,8 @@ if st.session_state.current_mode is None:
                 <div class="anim-desc">參考相同載體圖像<br>重建機密訊息</div>
             </div>
         </div>
-        
+
+        <!-- 組員名單 -->
         <div class="footer-credits">
             組員：鄭凱譽、劉佳典、王于婕
         </div>
@@ -1335,17 +1371,20 @@ if st.session_state.current_mode is None:
     
     <script>
     const parentDoc = window.parent.document;
-    
+
+    // 點擊嵌入卡片 → 觸發隱藏的「開始嵌入」按鈕
     function clickEmbed() {{
         const buttons = parentDoc.querySelectorAll('button');
         buttons.forEach(b => {{ if (b.innerText.includes('嵌入')) b.click(); }});
     }}
-    
+
+    // 點擊提取卡片 → 觸發隱藏的「開始提取」按鈕
     function clickExtract() {{
         const buttons = parentDoc.querySelectorAll('button');
         buttons.forEach(b => {{ if (b.innerText.includes('提取')) b.click(); }});
     }}
-    
+
+    // 隱藏 Streamlit 預設的標籤和按鈕
     function hideStreamlitBadges() {{
         const selectors = [
             '[class*="viewerBadge"]',
@@ -1373,7 +1412,7 @@ if st.session_state.current_mode is None:
     </html>
     """, height=900, scrolling=False)
     
-    # 動態調整 iframe 高度
+    # ----- 動態調整 iframe 高度（適應不同螢幕）-----
     components.html("""
     <script>
     (function() {
@@ -1386,7 +1425,7 @@ if st.session_state.current_mode is None:
     </script>
     """, height=0)
     
-    # 隱藏的按鈕
+    # ----- 隱藏的 Streamlit 按鈕（供 HTML 卡片觸發）-----
     col1, col2 = st.columns(2)
     with col1:
         if st.button("開始嵌入", key="btn_embed", use_container_width=True):
@@ -1396,7 +1435,8 @@ if st.session_state.current_mode is None:
         if st.button("開始提取", key="btn_extract", use_container_width=True):
             st.session_state.current_mode = 'extract'
             st.rerun()
-    
+
+    # ----- 用 JS 把 Streamlit 按鈕移到螢幕外（視覺上隱藏）-----
     components.html("""
 <script>
 const doc = window.parent.document;
@@ -1422,48 +1462,24 @@ elif st.session_state.current_mode == 'embed':
     if 'embed_page' not in st.session_state:
         st.session_state.embed_page = 'input'
     
-    # 結果頁
+    # -------------------- 嵌入結果頁 --------------------
     if st.session_state.embed_page == 'result' and st.session_state.embed_result and st.session_state.embed_result.get('success'):
+        # ----- 允許頁面滾動 -----
         st.markdown('<style>.main { overflow: auto !important; }</style>', unsafe_allow_html=True)
         
         r = st.session_state.embed_result
-        
+
+        # ----- 頁面標題 -----
         st.markdown('<div class="page-title-embed" style="text-align: center; margin-bottom: 30px;">嵌入結果</div>', unsafe_allow_html=True)
-        
-        # 下載按鈕樣式
-        st.markdown("""
-        <style>
-        /* 下載 Z碼圖 按鈕樣式 */
-        [data-testid="stDownloadButton"] button {
-            background-color: #c9b89a !important;
-            color: #443C3C !important;
-            border: none !important;
-            font-weight: 700 !important;
-            font-size: 24px !important;
-            min-width: 120px !important;
-            padding: 8px 18px !important;
-        }
-        [data-testid="stDownloadButton"] button p,
-        [data-testid="stDownloadButton"] button span {
-            font-weight: 700 !important;
-            font-size: 24px !important;
-        }
-        [data-testid="stDownloadButton"] button:hover {
-            background-color: #b8a788 !important;
-        }
-        [data-testid="stDownloadButton"] button:active,
-        [data-testid="stDownloadButton"] button:focus {
-            background-color: #d9c8aa !important;
-        }
-        </style>
-        """, unsafe_allow_html=True)
-        
+
+        # ----- 兩欄佈局：左=嵌入資訊，右=Z碼圖 -----
         spacer_left, col_left, col_gap, col_right, spacer_right = st.columns([0.4, 3.2, 0.6, 2, 0.1])
-        
+
+        # ----- 左欄：嵌入成功訊息 + 嵌入資訊 -----
         with col_left:
-            # 嵌入成功 - 無框版
             st.markdown(f'<p style="font-size: 32px; font-weight: bold; color: #4f7343; margin-bottom: 25px;">嵌入成功！({r["elapsed_time"]:.2f} 秒)</p>', unsafe_allow_html=True)
-            
+
+            # 取得嵌入資訊
             style_num = r.get("style_num", 1)
             style_name = NUM_TO_STYLE.get(style_num, "建築")
             img_num = r["embed_image_choice"].split("-")[1]
@@ -1473,9 +1489,9 @@ elif st.session_state.current_mode == 'embed':
             secret_bits = r.get("secret_bits", 0)
             capacity = r.get("capacity", 0)
             usage_percent = r.get("usage_percent", 0)
-            
+
+            # 格式化機密內容顯示（文字截斷30字，圖像顯示檔名和尺寸）
             if r['embed_secret_type'] == "文字":
-                # 截斷顯示：超過30字顯示省略號
                 original_text = r["secret_desc"].replace('文字: "', '').rstrip('"')
                 if len(original_text) > 30:
                     truncated_text = original_text[:30] + "..."
@@ -1486,7 +1502,7 @@ elif st.session_state.current_mode == 'embed':
                 size_info = r["secret_desc"].replace("圖像: ", "")
                 secret_display = f'圖像：{secret_filename} ({size_info})' if secret_filename else r["secret_desc"]
             
-            # 嵌入資訊 - 無框版
+            # 顯示嵌入資訊
             st.markdown(f'''
             <div style="font-size: 28px; color: #4f7343; line-height: 2;">
                 <p style="font-weight: bold; font-size: 32px; margin-bottom: 8px; color: #4f7343;">嵌入資訊</p>
@@ -1497,8 +1513,10 @@ elif st.session_state.current_mode == 'embed':
                 <b>{secret_display}</b>
             </div>
             ''', unsafe_allow_html=True)
-        
+
+        # ----- 右欄：Z碼圖 + 下載按鈕 -----
         with col_right:
+            # 文字機密 → 優先生成 QR Code，失敗則用圖像 Z碼
             if r['embed_secret_type'] == "文字":
                 z_text = z_to_text(r['z_bits'])
                 style_num = r.get("style_num", 1)
@@ -1508,6 +1526,7 @@ elif st.session_state.current_mode == 'embed':
                 qr_content = f"{style_num}-{img_num}-{img_size}|{z_text}"
                 
                 try:
+                    # 嘗試生成 QR Code
                     qr = qrcode.QRCode(version=None, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=10, border=2)
                     qr.add_data(qr_content)
                     qr.make(fit=True)
@@ -1523,6 +1542,7 @@ elif st.session_state.current_mode == 'embed':
                     st.markdown('<p style="font-size: 38px; color: #443C3C; margin-top: 25px; margin-bottom: 0;">傳送 Z碼圖給對方</p>', unsafe_allow_html=True)
                     st.markdown('<p style="font-size: 30px; color: #888; margin-top: 5px; white-space: nowrap;">接收方需要此 Z碼圖才能提取機密</p>', unsafe_allow_html=True)
                 except:
+                    # QR Code 失敗（資料太多），改用圖像 Z碼
                     style_num_int = int(style_num)
                     img_num_int = int(img_num)
                     img_size_int = int(img_size)
@@ -1536,6 +1556,7 @@ elif st.session_state.current_mode == 'embed':
                     st.markdown('<p style="font-size: 38px; color: #443C3C; margin-top: 25px; margin-bottom: 0;">傳送 Z碼圖給對方</p>', unsafe_allow_html=True)
                     st.markdown('<p style="font-size: 30px; color: #888; margin-top: 5px; white-space: nowrap;">接收方需要此 Z碼圖才能提取機密</p>', unsafe_allow_html=True)
             else:
+                # 圖像機密 → 直接用圖像 Z碼
                 style_num = r.get("style_num", 1)
                 img_num = int(r["embed_image_choice"].split("-")[1])
                 img_size = int(r["embed_image_choice"].split("-")[2])
@@ -1549,7 +1570,7 @@ elif st.session_state.current_mode == 'embed':
                 st.markdown('<p style="font-size: 38px; color: #443C3C; margin-top: 25px; margin-bottom: 0;">傳送 Z碼圖給對方</p>', unsafe_allow_html=True)
                 st.markdown('<p style="font-size: 30px; color: #888; margin-top: 5px; white-space: nowrap;">接收方需要此 Z碼圖才能提取機密</p>', unsafe_allow_html=True)
         
-        # 返回首頁按鈕 - 和開始嵌入按鈕一樣固定在底部
+        # ----- 返回首頁按鈕 -----
         _, btn_col, _ = st.columns([1, 1, 1])
         with btn_col:
             if st.button("返回首頁", key="back_to_home_from_embed", type="primary"):
@@ -1559,7 +1580,7 @@ elif st.session_state.current_mode == 'embed':
                 st.session_state.current_mode = None
                 st.rerun()
         
-        # 固定定位到底部中央（和開始嵌入按鈕一樣）
+        # ----- 固定返回首頁按鈕到底部中央 -----
         components.html("""
         <script>
         function fixBackButton() {
@@ -1579,11 +1600,14 @@ elif st.session_state.current_mode == 'embed':
         </script>
         """, height=0)
     
-    # 輸入頁
+    # -------------------- 嵌入輸入頁 --------------------
     else:
         st.session_state.embed_page = 'input'
+
+        # ----- 左側「對象管理」標籤（藍色）-----
         st.markdown('<div id="sidebar-toggle-label" style="background: #4A6B8A !important;">對象管理</div>', unsafe_allow_html=True)
-        
+
+        # ----- 側邊欄開關功能 -----
         components.html("""
 <script>
 (function() {
@@ -1592,21 +1616,24 @@ elif st.session_state.current_mode == 'embed':
     if (label) {
         label.style.setProperty('background', '#4A6B8A', 'important');
     }
-    
+
+    // 關閉側邊欄
     function closeSidebar() {
         const sidebar = doc.querySelector('[data-testid="stSidebar"]');
         const label = doc.getElementById('sidebar-toggle-label');
         if (sidebar) sidebar.classList.remove('sidebar-open');
         if (label) label.style.display = 'block';
     }
-    
+
+    // 開啟側邊欄
     function openSidebar() {
         const sidebar = doc.querySelector('[data-testid="stSidebar"]');
         const label = doc.getElementById('sidebar-toggle-label');
         if (sidebar) sidebar.classList.add('sidebar-open');
         if (label) label.style.display = 'none';
     }
-    
+
+    // 綁定事件
     function setup() {
         const label = doc.getElementById('sidebar-toggle-label');
         if (label && !label.hasAttribute('data-bound')) {
@@ -1624,26 +1651,27 @@ elif st.session_state.current_mode == 'embed':
 })();
 </script>
 """, height=0)
-        
+
+        # ----- 頁面標題 -----
         st.markdown('<div class="page-title-embed" style="text-align: center; margin-bottom: 10px; margin-top: -0.8rem;">嵌入機密</div>', unsafe_allow_html=True)
-        
+
+        # ----- 初始化變數 -----
         embed_text, secret_bits_needed = None, 0
         embed_image_choice, selected_size = None, None
         
         contacts = st.session_state.contacts
         contact_names = list(contacts.keys())
         
-        # 檢查各步驟完成狀態
+        # ----- 檢查步驟完成狀態 -----
         selected_contact = st.session_state.get('selected_contact_saved', None)
         step1_done = selected_contact and selected_contact != "選擇"
         
         secret_bits_saved = st.session_state.get('secret_bits_saved', 0)
         step2_done = secret_bits_saved > 0
         
-        # 三欄並排佈局 - 加大寬度 + 固定不滾動
+        # ----- 頁面滾動樣式（覆蓋首頁的禁止滾動）-----
         st.markdown("""
         <style>
-        /* 強制允許頁面滾動 - 覆蓋首頁的 overflow: hidden */
         html, body, [data-testid="stAppViewContainer"], .main, [data-testid="stMain"] {
             overflow: auto !important;
             height: auto !important;
@@ -1656,14 +1684,12 @@ elif st.session_state.current_mode == 'embed':
             gap: 2rem !important;
         }
         
-        /* 頁面可滾動 */
         .block-container {
             padding-bottom: 120px !important;
             overflow: auto !important;
             height: auto !important;
         }
         
-        /* 小螢幕適配 (14吋筆電通常 ≤ 900px 高度) */
         @media (max-height: 800px) {
             .block-container {
                 padding-bottom: 140px !important;
@@ -1671,7 +1697,8 @@ elif st.session_state.current_mode == 'embed':
         }
         </style>
         """, unsafe_allow_html=True)
-        
+
+        # ----- 三欄佈局 -----
         col1, col2, col3 = st.columns([1, 1.4, 1.4], gap="large")
         
         # ===== 第一步：選擇對象 =====
@@ -1696,9 +1723,9 @@ elif st.session_state.current_mode == 'embed':
                 else:
                     st.session_state.selected_contact_saved = None
                     step1_done = False
-                    # 未選擇時顯示提示
                     st.markdown('<div class="hint-text" style="margin-top: 10px; font-size: 22px !important;">💡 點擊「對象管理」可修改資料</div>', unsafe_allow_html=True)
             else:
+                # 無對象時顯示警告
                 st.markdown("""<div style="background: #fff2cc; border: none; border-radius: 8px; padding: 15px; text-align: center;">
                     <div style="font-size: 24px; font-weight: bold; color: #856404;">⚠️ 尚無對象</div>
                     <div style="font-size: 24px; color: #856404; margin-top: 8px;">點擊「對象管理」新增</div>
@@ -1706,6 +1733,7 @@ elif st.session_state.current_mode == 'embed':
         
         # ===== 第二步：機密內容 =====
         with col2:
+            # 標題顏色：未完成第一步=淺色，已完成=深色
             st.markdown(f"""
             <div style="text-align: center; padding: 10px; border-bottom: {'4px solid #B8C8D8' if not step1_done else '4px solid #4A6B8A'}; margin-bottom: 8px;">
                 <span style="font-size: 32px; font-weight: bold; color: {'#B8C8D8' if not step1_done else '#4A6B8A'};">第二步：機密內容</span>
@@ -1715,12 +1743,11 @@ elif st.session_state.current_mode == 'embed':
             if step1_done:
                 saved_type = st.session_state.get('embed_secret_type_saved', '文字')
                 
-                # Tab 按鈕切換
+                # ----- 文字/圖像切換按鈕 -----
                 tab_col1, tab_col2 = st.columns([1, 1], gap="small")
                 with tab_col1:
                     if st.button("文字", key="tab_text_btn", use_container_width=True, type="primary" if saved_type == "文字" else "secondary"):
                         if saved_type != "文字":
-                            # 從圖像切換到文字，清除圖像資料
                             for key in ['embed_secret_image_data', 'embed_secret_image_name']:
                                 if key in st.session_state:
                                     del st.session_state[key]
@@ -1738,7 +1765,8 @@ elif st.session_state.current_mode == 'embed':
                             st.rerun()
                 
                 embed_secret_type = saved_type
-                
+
+                # ----- 文字輸入 -----
                 if embed_secret_type == "文字":
                     saved_text = st.session_state.get('embed_text_saved', '')
                     embed_text_raw = st.text_area("輸入機密", value=saved_text, placeholder="輸入機密訊息...", height=150, key="embed_text_h", label_visibility="collapsed")
@@ -1749,13 +1777,14 @@ elif st.session_state.current_mode == 'embed':
                         st.session_state.embed_text_saved = embed_text
                         st.session_state.embed_secret_type_saved = "文字"
                         
-                        # 計算字數
                         char_count = len(embed_text)
                         st.markdown(f'<div class="bits-info">機密文字：{char_count} 字<br>所需容量：{secret_bits_needed:,} bits</div>', unsafe_allow_html=True)
                         step2_done = True
                     else:
                         st.session_state.secret_bits_saved = 0
                         step2_done = False
+                        
+                # ----- 圖像上傳 -----
                 else:
                     embed_img_file = st.file_uploader("上傳圖像", type=["jpg", "jpeg", "png"], key="embed_img_h", label_visibility="collapsed")
                     if embed_img_file:
@@ -1771,6 +1800,7 @@ elif st.session_state.current_mode == 'embed':
                         st.markdown(f'<div class="bits-info">機密圖像：{st.session_state.embed_secret_image_name} ({secret_img.size[0]}×{secret_img.size[1]} px)<br>所需容量：{secret_bits_needed:,} bits</div>', unsafe_allow_html=True)
                         step2_done = True
                     elif st.session_state.get('embed_secret_image_data'):
+                        # 已上傳的圖像（從 session_state 讀取）
                         secret_img = Image.open(BytesIO(st.session_state.embed_secret_image_data))
                         st.image(secret_img, width=180)
                         secret_img_name = st.session_state.get('embed_secret_image_name', 'image.png')
@@ -1793,10 +1823,10 @@ elif st.session_state.current_mode == 'embed':
             if step2_done:
                 secret_bits_needed = st.session_state.get('secret_bits_saved', 0)
                 selected_contact = st.session_state.get('selected_contact_saved', '選擇')
-                
+
+                # ----- 根據對象自動選擇風格 -----
                 style_list = list(STYLE_CATEGORIES.keys())
                 auto_style = get_contact_style(contacts, selected_contact)
-                # 找到對應的帶編號風格
                 default_style_index = 0
                 if auto_style:
                     for i, style_key in enumerate(style_list):
@@ -1804,7 +1834,7 @@ elif st.session_state.current_mode == 'embed':
                             default_style_index = i
                             break
                 
-                # 第一行：風格、圖像
+                # ----- 風格和圖像選擇 -----
                 row1_col1, row1_col2 = st.columns([1.5, 2.5])
                 
                 with row1_col1:
@@ -1819,24 +1849,22 @@ elif st.session_state.current_mode == 'embed':
                     
                     with row1_col2:
                         img_idx = st.selectbox("圖像", range(len(images)), format_func=lambda i: image_options[i], key="embed_img_select_h")
-                    
+
+                    # ----- 尺寸選擇（根據機密大小推薦）-----
                     recommended_size = get_recommended_size(secret_bits_needed)
                     available_sizes = [s for s in AVAILABLE_SIZES if s >= recommended_size]
                     
                     size_options = [f"{s}×{s} ⭐ 推薦" if s == recommended_size else f"{s}×{s}" for s in available_sizes]
                     
-                    # 第二行：尺寸
                     size_idx = st.selectbox("尺寸", range(len(available_sizes)), format_func=lambda i: size_options[i], key="embed_size_h")
                     selected_size = available_sizes[size_idx]
                     
                     selected_image = images[img_idx]
                     
-                    # 載體圖和容量信息並排（水平對齊）
                     capacity = calculate_capacity(selected_size, selected_size)
                     usage = secret_bits_needed / capacity * 100
                     capacity_ok = secret_bits_needed <= capacity
                     
-                    # 根據容量是否足夠顯示不同顏色和文字
                     info_color = "#4f7343" if capacity_ok else "#C62828"
                     if capacity_ok:
                         usage_text = f"使用率：{usage:.1f}%"
@@ -1855,7 +1883,7 @@ elif st.session_state.current_mode == 'embed':
                         </div>
                     </div>''', unsafe_allow_html=True)
                     
-                    # 儲存容量檢查結果
+                    # ----- 儲存選擇到 session_state -----
                     st.session_state.embed_capacity_ok = capacity_ok
                     
                     st.session_state.embed_image_id = selected_image["id"]
@@ -1866,9 +1894,8 @@ elif st.session_state.current_mode == 'embed':
             else:
                 st.markdown('<p style="font-size: 24px; color: #999; text-align: center;">請先完成第二步</p>', unsafe_allow_html=True)
         
-        # ===== 返回按鈕（左下角）=====
+        # ===== 返回按鈕 =====
         if st.button("返回", key="embed_back_btn", type="secondary"):
-            # 清除嵌入相關狀態
             for key in ['selected_contact_saved', 'secret_bits_saved', 'embed_text_saved', 
                         'embed_secret_type_saved', 'embed_secret_image_data', 'embed_secret_image_name',
                         'embed_image_id', 'embed_image_size', 'embed_image_name', 'embed_style_num']:
@@ -1886,7 +1913,7 @@ elif st.session_state.current_mode == 'embed':
                 if st.button("開始嵌入", type="primary", key="embed_btn_horizontal", use_container_width=True):
                     st.session_state.trigger_embed = True
             
-            # 固定開始嵌入按鈕到底部中央
+            # ----- 固定開始嵌入按鈕到底部中央 -----
             components.html("""
             <script>
             function fixEmbedButton() {
@@ -1907,7 +1934,7 @@ elif st.session_state.current_mode == 'embed':
             </script>
             """, height=0)
         
-        # 固定返回按鈕到左下角
+        # ----- 固定返回按鈕到左下角 -----
         components.html("""
         <script>
         function fixEmbedBackButton() {
@@ -1927,10 +1954,12 @@ elif st.session_state.current_mode == 'embed':
         setTimeout(fixEmbedBackButton, 300);
         </script>
         """, height=0)
-        
+
+        # ===== 執行嵌入處理 =====
         if all_done and st.session_state.get('trigger_embed'):
             st.session_state.trigger_embed = False
-                
+
+            # ----- 顯示處理中遮罩 -----
             processing_placeholder = st.empty()
             processing_placeholder.markdown("""
             <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; justify-content: center; align-items: center;">
@@ -1943,16 +1972,19 @@ elif st.session_state.current_mode == 'embed':
             
             try:
                 start = time.time()
+
+                # ----- 下載載體圖像 -----
                 image_id = st.session_state.get('embed_image_id')
                 image_size = st.session_state.get('embed_image_size')
                 style_num = st.session_state.get('embed_style_num', 1)
                 _, img_process = download_image_by_id(image_id, image_size)
                 capacity = calculate_capacity(image_size, image_size)
                 
-                # 取得對象密鑰
+                # ----- 取得對象密鑰 -----
                 selected_contact = st.session_state.get('selected_contact_saved', None)
                 contact_key = get_contact_key(st.session_state.contacts, selected_contact) if selected_contact else None
-                
+
+                # ----- 準備機密內容 -----
                 embed_secret_type = st.session_state.get('embed_secret_type_saved', '文字')
                 embed_text = st.session_state.get('embed_text_saved', None)
                 
@@ -1969,10 +2001,11 @@ elif st.session_state.current_mode == 'embed':
                         secret_desc = f"圖像: {secret_content.size[0]}×{secret_content.size[1]} px"
                         secret_filename = st.session_state.get('embed_secret_image_name', 'image.png')
                 
-                # 傳入 contact_key 進行嵌入
+                # ----- 執行嵌入 -----
                 z_bits, used_capacity, info = embed_secret(img_process, secret_content, secret_type=secret_type_flag, contact_key=contact_key)
                 processing_placeholder.empty()
-                
+
+                # ----- 儲存結果 -----
                 st.session_state.embed_result = {
                     'success': True, 'elapsed_time': time.time()-start,
                     'embed_image_choice': embed_image_choice, 'secret_desc': secret_desc,
@@ -1983,6 +2016,8 @@ elif st.session_state.current_mode == 'embed':
                     'usage_percent': info['bits']*100/capacity,
                     'style_num': style_num
                 }
+                
+                # ----- 清除輸入狀態 -----
                 for key in ['selected_contact_saved', 'secret_bits_saved', 'embed_text_saved', 'embed_secret_type_saved', 'embed_secret_image_data', 'embed_secret_image_name']:
                     if key in st.session_state:
                         del st.session_state[key]
@@ -1998,41 +2033,21 @@ else:
     if 'extract_page' not in st.session_state:
         st.session_state.extract_page = 'input'
     
-    # 結果頁
+    # -------------------- 提取結果頁 --------------------
     if st.session_state.extract_page == 'result' and st.session_state.extract_result and st.session_state.extract_result.get('success'):
-        st.markdown("""
-        <style>
-        .main { overflow: auto !important; }
-        
-        /* 下載圖像按鈕樣式 */
-        [data-testid="stDownloadButton"] button {
-            background-color: #c9b89a !important;
-            color: #443C3C !important;
-            border: none !important;
-            font-weight: 700 !important;
-            font-size: 24px !important;
-            min-width: 120px !important;
-            padding: 8px 18px !important;
-        }
-        [data-testid="stDownloadButton"] button p,
-        [data-testid="stDownloadButton"] button span {
-            font-weight: 700 !important;
-            font-size: 24px !important;
-        }
-        [data-testid="stDownloadButton"] button:hover {
-            background-color: #b8a788 !important;
-        }
-        </style>
-        """, unsafe_allow_html=True)
+        # ----- 允許頁面滾動 -----
+        st.markdown('<style>.main { overflow: auto !important; }</style>', unsafe_allow_html=True)
         
         r = st.session_state.extract_result
-        
+
+        # ----- 頁面標題 -----
         st.markdown('<div class="page-title-extract" style="text-align: center; margin-bottom: 30px;">提取結果</div>', unsafe_allow_html=True)
-        
+
+        # ===== 文字結果 =====
         if r['type'] == 'text':
             is_garbled = r.get('is_garbled', False)
             
-            # 格式化函數
+            # 格式化文字（處理換行）
             def format_text_display(text):
                 result = html.escape(text)
                 result = result.replace('\r\n', '<br>')
@@ -2041,7 +2056,7 @@ else:
                 return result
             
             if is_garbled:
-                # ===== 亂碼情況：提取失敗（置中）=====
+                # ----- 亂碼情況：提取失敗 -----
                 spacer1, center_col, spacer2 = st.columns([1, 2, 1])
                 
                 with center_col:
@@ -2051,15 +2066,17 @@ else:
                     st.markdown(f'<p style="font-size: 18px; color: #666; line-height: 1.6; word-break: break-all; text-align: center;">{html.escape(display_text)}</p>', unsafe_allow_html=True)
             
             else:
-                # ===== 正常情況：提取成功 =====
+                # ----- 正常情況：提取成功 -----
                 col1, col2, col3 = st.columns([1.4, 1.2, 1.4])
-                
+
+                # 左欄：提取結果
                 with col1:
                     st.markdown(f'<p style="font-size: 28px; font-weight: bold; color: #4f7343; margin-bottom: 15px;">提取成功！({r["elapsed_time"]:.2f} 秒)</p>', unsafe_allow_html=True)
                     st.markdown('<p style="font-size: 24px; font-weight: bold; color: #4f7343;">機密文字:</p>', unsafe_allow_html=True)
                     content_html = format_text_display(r["content"])
                     st.markdown(f'<p style="font-size: 20px; color: #4f7343; line-height: 1.8;">{content_html}</p>', unsafe_allow_html=True)
-                
+
+                # 中欄：驗證輸入
                 with col2:
                     st.markdown('<p style="font-size: 24px; font-weight: bold; color: #443C3C;">驗證</p>', unsafe_allow_html=True)
                     verify_input = st.text_area("輸入原始機密", key="verify_text_input", height=180, placeholder="貼上嵌入時的原始機密內容...", label_visibility="collapsed")
@@ -2069,7 +2086,8 @@ else:
                             'input': verify_input,
                             'match': verify_input == r['content']
                         }
-                    
+
+                    # ----- 驗證按鈕樣式 -----
                     components.html("""
                     <script>
                     function fixVerifyTextBtn() {
@@ -2091,7 +2109,8 @@ else:
                     setTimeout(fixVerifyTextBtn, 300);
                     </script>
                     """, height=0)
-                
+
+                # 右欄：驗證結果
                 with col3:
                     st.markdown('<p style="font-size: 24px; font-weight: bold; color: #443C3C;">結果</p>', unsafe_allow_html=True)
                     if 'verify_result' in st.session_state and st.session_state.verify_result:
@@ -2117,12 +2136,13 @@ else:
                         ''', unsafe_allow_html=True)
                     else:
                         st.markdown('<p style="font-size: 16px; color: #999; margin-top: 30px;">← 輸入原始機密後<br>按「驗證」查看結果</p>', unsafe_allow_html=True)
-        
+
+        # ===== 圖像結果 =====
         else:
             is_garbled = r.get('is_garbled', False)
             
             if is_garbled:
-                # ===== 亂碼情況：提取失敗（置中）=====
+                # ----- 亂碼情況：提取失敗 -----
                 st.markdown(f'''
                 <div style="text-align: center;">
                     <div style="font-size: 40px; font-weight: bold; color: #C62828; margin-bottom: 40px;">提取失敗 ! ({r["elapsed_time"]:.2f} 秒)</div>
@@ -2134,19 +2154,22 @@ else:
                     st.image(Image.open(BytesIO(r['image_data'])), width=200)
             
             else:
-                # ===== 正常情況：提取成功 =====
+               # ----- 正常情況：提取成功 -----
                 spacer_left, col_left, col_gap, col_right, spacer_right = st.columns([0.4, 2.5, 0.1, 2.2, 0.1])
+
+                # 左欄：提取結果 + 下載
                 with col_left:
                     st.markdown(f'<p style="font-size: 32px; font-weight: bold; color: #4f7343; margin-bottom: 25px;">提取成功！({r["elapsed_time"]:.2f} 秒)</p>', unsafe_allow_html=True)
                     st.markdown('<p style="font-size: 32px; font-weight: bold; color: #4f7343;">機密圖像:</p>', unsafe_allow_html=True)
                     st.image(Image.open(BytesIO(r['image_data'])), width=200)
                     st.download_button("下載圖像", r['image_data'], "recovered.png", "image/png", key="dl_rec")
-                
+
+                # 右欄：圖像驗證
                 with col_right:
                     st.markdown('<p style="font-size: 34px; font-weight: bold; color: #443C3C;">驗證結果</p>', unsafe_allow_html=True)
                     verify_img = st.file_uploader("上傳原始機密圖像", type=["png", "jpg", "jpeg"], key="verify_img_upload")
                     if verify_img:
-                        # 檢查是否換了新圖片，如果是就清除舊結果
+                        # 檢查是否換了新圖片
                         current_name = verify_img.name
                         if st.session_state.get('last_verify_img_name') != current_name:
                             st.session_state.last_verify_img_name = current_name
@@ -2154,7 +2177,8 @@ else:
         
                         orig_img = Image.open(verify_img)
                         extracted_img = Image.open(BytesIO(r['image_data']))
-                        
+
+                        # 顯示原始和提取圖像
                         col_orig, col_ext = st.columns(2)
                         with col_orig:
                             st.markdown('<p style="font-size: 20px; font-weight: bold; color: #443C3C;">原始圖像</p>', unsafe_allow_html=True)
@@ -2162,7 +2186,8 @@ else:
                         with col_ext:
                             st.markdown('<p style="font-size: 20px; font-weight: bold; color: #443C3C;">提取結果</p>', unsafe_allow_html=True)
                             st.image(extracted_img, width=150)
-                        
+
+                        # 驗證按鈕
                         if st.button("驗證", key="verify_img_btn"):
                             orig_arr = np.array(orig_img.convert('RGB'))
                             ext_arr = np.array(extracted_img.convert('RGB'))
@@ -2179,7 +2204,8 @@ else:
                                     'orig_size': orig_img.size,
                                     'ext_size': extracted_img.size
                                 }
-                        
+
+                        # ----- 驗證按鈕樣式 -----
                         components.html("""
                         <script>
                         function fixVerifyImgBtn() {
@@ -2201,7 +2227,8 @@ else:
                         setTimeout(fixVerifyImgBtn, 300);
                         </script>
                         """, height=0)
-                        
+
+                        # 顯示驗證結果
                         if 'verify_img_result' in st.session_state and st.session_state.verify_img_result:
                             vr = st.session_state.verify_img_result
                             if vr.get('same_size'):
@@ -2213,7 +2240,7 @@ else:
                             else:
                                 st.markdown(f'<p style="color: #C62828;">尺寸不同，無法比較<br>原始：{vr["orig_size"][0]}×{vr["orig_size"][1]} vs 提取：{vr["ext_size"][0]}×{vr["ext_size"][1]}</div>', unsafe_allow_html=True)
         
-        # 返回首頁按鈕 - 固定在底部中央
+        # ----- 返回首頁按鈕 -----
         _, btn_col, _ = st.columns([1, 1, 1])
         with btn_col:
             if st.button("返回首頁", key="back_to_home_from_extract", type="primary"):
@@ -2223,14 +2250,14 @@ else:
                 st.session_state.verify_result = None
                 st.session_state.verify_img_result = None
                 st.rerun()
-        
+
+        # ----- 固定返回首頁按鈕 + 驗證按鈕樣式 -----
         components.html("""
         <script>
         function fixExtractBackButton() {
             const buttons = window.parent.document.querySelectorAll('button');
             for (let btn of buttons) { 
                 if (btn.innerText === '返回首頁') {
-                    // 按鈕顏色改成提取結果標題顏色
                     btn.style.setProperty('background-color', '#7D5A6B', 'important');
                     btn.style.setProperty('border-color', '#7D5A6B', 'important');
                     let container = btn.closest('.stButton') || btn.parentElement.parentElement.parentElement;
@@ -2239,7 +2266,6 @@ else:
                     }
                 }
                 if (btn.innerText === '驗證') {
-                    // 驗證按鈕顏色和下載Z碼圖一樣
                     btn.style.setProperty('background-color', '#c9b89a', 'important');
                     btn.style.setProperty('border-color', '#c9b89a', 'important');
                     btn.style.setProperty('color', '#443C3C', 'important');
@@ -2257,11 +2283,14 @@ else:
         </script>
         """, height=0)
     
-    # 輸入頁
+    # -------------------- 提取輸入頁 --------------------
     else:
         st.session_state.extract_page = 'input'
+
+        # ----- 左側「對象管理」標籤（粉色）-----
         st.markdown('<div id="sidebar-toggle-label" style="background: #7D5A6B !important;">對象管理</div>', unsafe_allow_html=True)
-        
+
+        # ----- 側邊欄開關功能 -----
         components.html("""
 <script>
 (function() {
@@ -2298,18 +2327,19 @@ else:
 })();
 </script>
 """, height=0)
-        
+
+        # ----- 頁面標題 -----
         st.markdown('<div class="page-title-extract" style="text-align: center; margin-bottom: 20px; margin-top: -0.8rem;">提取機密</div>', unsafe_allow_html=True)
-        
+
+        # ----- 初始化變數 -----
         extract_z_text, extract_style_num, extract_img_num, extract_img_size = None, None, None, None
         
         contacts = st.session_state.contacts
         contact_names = list(contacts.keys())
         
-        # 兩欄並排佈局 - 和嵌入機密一樣
+        # ----- 頁面滾動樣式 -----
         st.markdown("""
         <style>
-        /* 強制允許頁面滾動 - 覆蓋首頁的 overflow: hidden */
         html, body, [data-testid="stAppViewContainer"], .main, [data-testid="stMain"] {
             overflow: auto !important;
             height: auto !important;
@@ -2327,7 +2357,6 @@ else:
             height: auto !important;
         }
         
-        /* 小螢幕適配 */
         @media (max-height: 800px) {
             .block-container {
                 padding-bottom: 140px !important;
@@ -2336,16 +2365,11 @@ else:
         </style>
         """, unsafe_allow_html=True)
         
-        # 預先從 session_state 讀取狀態
+        # ----- 檢查步驟完成狀態 -----
         saved_contact = st.session_state.get('extract_contact_saved', None)
         step1_done = saved_contact is not None and saved_contact in contact_names
-        
-        # 初始化提取變量
-        extract_z_text = None
-        extract_style_num = None
-        extract_img_num = None
-        extract_img_size = None
-        
+
+        # ----- 兩欄佈局 -----
         col1, col2 = st.columns([1, 1], gap="large")
         
         # ===== 第一步：選擇對象 =====
@@ -2367,7 +2391,6 @@ else:
                     st.markdown(f'<div class="selected-info">已選擇對象：{selected_contact}</div>', unsafe_allow_html=True)
                     step1_done = True
                 else:
-                    # 未選擇時顯示提示
                     st.markdown('<div class="hint-text" style="margin-top: 10px; font-size: 22px !important;">💡 點擊「對象管理」可修改資料</div>', unsafe_allow_html=True)
             else:
                 st.markdown("""<div style="background: #fff2cc; border: none; border-radius: 8px; padding: 15px; text-align: center;">
@@ -2392,7 +2415,7 @@ else:
                     success_msg = ""
                     error_msg = ""
                     
-                    # 先嘗試 QR Code
+                    # ----- 先嘗試 QR Code 解碼 -----
                     try:
                         decode_qr = load_pyzbar()
                         decoded = decode_qr(uploaded_img)
@@ -2413,8 +2436,8 @@ else:
                                     success_msg = f"Z碼圖額外資訊：<br>風格：{extract_style_num}. {style_name}，載體圖像：{extract_img_num}（{img_name}），尺寸：{extract_img_size}×{extract_img_size}"
                                     detected = True
                                 elif len(parts) == 2:
-                                    # 舊格式兼容: 圖像編號-尺寸
-                                    extract_style_num = 1  # 默認建築
+                                    # 舊格式: 圖像編號-尺寸（預設風格=建築）
+                                    extract_style_num = 1 
                                     extract_img_num = int(parts[0])
                                     extract_img_size = int(parts[1])
                                     extract_z_text = z_text
@@ -2426,7 +2449,7 @@ else:
                     except Exception as e:
                         error_msg = f"QR: {str(e)}"
                     
-                    # 如果 QR 失敗，嘗試 Z碼圖
+                    # ----- QR 失敗則嘗試圖像 Z碼解碼 -----
                     if not detected:
                         try:
                             z_bits, style_num, img_num, img_size = image_to_z_with_header(uploaded_img)
@@ -2445,7 +2468,7 @@ else:
                             else:
                                 error_msg = str(e)
                     
-                    # 顯示上傳的圖像和識別結果（並排）
+                    # ----- 顯示識別結果 -----
                     if detected:
                         img_bytes = extract_file.getvalue()
                         img_b64 = base64.b64encode(img_bytes).decode()
@@ -2465,9 +2488,8 @@ else:
             else:
                 st.markdown('<p style="font-size: 24px; color: #999; text-align: center;">請先完成第一步</p>', unsafe_allow_html=True)
         
-        # ===== 返回按鈕（左下角）=====
+        # ===== 返回按鈕 =====
         if st.button("返回", key="extract_back_btn", type="secondary"):
-            # 清除提取相關狀態
             for key in ['extract_contact_saved']:
                 if key in st.session_state:
                     del st.session_state[key]
@@ -2479,21 +2501,20 @@ else:
             btn_col1, btn_col2, btn_col3 = st.columns([1, 0.5, 1])
             with btn_col2:
                 extract_btn = st.button("開始提取", type="primary", key="extract_start_btn")
-            
+
+            # ----- 固定開始提取按鈕到底部中央 + 設定粉色 -----
             components.html("""
             <script>
             function fixExtractButtons() {
                 const buttons = window.parent.document.querySelectorAll('button');
                 for (let btn of buttons) { 
                     if (btn.innerText === '開始提取') {
-                        // 按鈕顏色和寬度
                         btn.style.setProperty('background-color', '#7D5A6B', 'important');
                         btn.style.setProperty('border-color', '#7D5A6B', 'important');
                         btn.style.setProperty('color', 'white', 'important');
                         btn.style.setProperty('width', 'auto', 'important');
                         btn.style.setProperty('min-width', '60px', 'important');
                         btn.style.setProperty('padding', '0.5rem 1rem', 'important');
-                        // 固定定位到底部中央
                         let container = btn.closest('.stButton') || btn.parentElement.parentElement.parentElement;
                         if (container) {
                             container.style.cssText = 'position:fixed!important;bottom:85px!important;left:50%!important;transform:translateX(-50%)!important;width:auto!important;z-index:1000!important;';
@@ -2507,8 +2528,10 @@ else:
             setTimeout(fixExtractButtons, 500);
             </script>
             """, height=0)
-            
+
+            # ===== 執行提取處理 =====
             if extract_btn:
+                # ----- 顯示處理中遮罩 -----
                 processing_placeholder = st.empty()
                 processing_placeholder.markdown("""
                 <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; justify-content: center; align-items: center;">
@@ -2521,14 +2544,17 @@ else:
                 
                 try:
                     start = time.time()
+
+                    # ----- 解析 Z碼 -----
                     clean = ''.join(c for c in extract_z_text.strip() if c in '01')
                     Z = text_to_z(clean) if clean else None
                     
-                    # 取得對象密鑰
+                    # ----- 取得對象密鑰 -----
                     selected_contact = st.session_state.get('extract_contact_saved', None)
                     contact_key = get_contact_key(st.session_state.contacts, selected_contact) if selected_contact else None
                     
                     if Z:
+                        # ----- 下載載體圖像 -----
                         style_name = NUM_TO_STYLE.get(extract_style_num, "建築")
                         images = IMAGE_LIBRARY.get(style_name, [])
                         img_idx = extract_img_num - 1
@@ -2537,10 +2563,11 @@ else:
                             selected_image = images[img_idx]
                             _, img_process = download_image_by_id(selected_image["id"], extract_img_size)
                             
-                            # 傳入 contact_key 進行提取
+                            # ----- 執行提取 -----
                             secret, secret_type, info = detect_and_extract(img_process, Z, contact_key=contact_key)
                             processing_placeholder.empty()
-                            
+
+                            # ----- 儲存結果 -----
                             if secret_type == 'text':
                                 is_garbled = is_likely_garbled_text(secret)
                                 st.session_state.extract_result = {
@@ -2562,7 +2589,8 @@ else:
                                     'image_data': buf.getvalue(),
                                     'is_garbled': is_garbled
                                 }
-                            
+
+                            # ----- 清除輸入狀態 -----
                             for key in ['extract_contact_saved']:
                                 if key in st.session_state:
                                     del st.session_state[key]
@@ -2572,7 +2600,7 @@ else:
                     processing_placeholder.empty()
                     st.markdown(f'<div class="error-box">提取失敗 ! {e}</div>', unsafe_allow_html=True)
         
-        # 固定返回按鈕到左下角
+        # ----- 固定返回按鈕到左下角 -----
         components.html("""
         <script>
         function fixExtractBackButton() {
