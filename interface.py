@@ -813,11 +813,7 @@ h3 { font-size: clamp(28px, 3vw, 36px) !important; font-weight: bold !important;
     opacity: 1 !important;
 }
 
-/* 移除 textarea 底部黑線 */
-.stTextArea [data-baseweb="textarea"] {
-    border: none !important;
-    background-color: transparent !important;
-}
+
 
 .stTextArea [data-baseweb="base-input"] {
     border-bottom: none !important;
@@ -840,7 +836,11 @@ h3 { font-size: clamp(28px, 3vw, 36px) !important; font-weight: bold !important;
     display: none !important;
 }
 
-
+/* 隱藏 Ctrl+Enter 提示 */
+.stTextArea [data-testid="stTextAreaRootContainer"] > div:last-child,
+.stTextArea .st-emotion-cache-1gulkj5 {
+    display: none !important;
+}
 
 /* ----- Caption 樣式（檔案上傳提示文字）----- */
 .stCaption, [data-testid="stCaptionContainer"] {
