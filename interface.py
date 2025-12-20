@@ -1486,9 +1486,6 @@ elif st.session_state.current_mode == 'embed':
             img_name = r.get("image_name", "")
             img_size = r.get("image_size", "")
             secret_filename = r.get("secret_filename", "")
-            secret_bits = r.get("secret_bits", 0)
-            capacity = r.get("capacity", 0)
-            usage_percent = r.get("usage_percent", 0)
 
             # 格式化機密內容顯示（文字截斷30字，圖像顯示檔名和尺寸）
             if r['embed_secret_type'] == "文字":
@@ -2264,15 +2261,6 @@ else:
                     if (container) {
                         container.style.cssText = 'position:fixed!important;bottom:85px!important;left:50%!important;transform:translateX(-50%)!important;width:auto!important;z-index:1000!important;';
                     }
-                }
-                if (btn.innerText === '驗證') {
-                    btn.style.setProperty('background-color', '#c9b89a', 'important');
-                    btn.style.setProperty('border-color', '#c9b89a', 'important');
-                    btn.style.setProperty('color', '#443C3C', 'important');
-                    btn.style.setProperty('font-size', '16px', 'important');
-                    btn.style.setProperty('font-weight', '700', 'important');
-                    btn.style.setProperty('padding', '4px 12px', 'important');
-                    btn.style.setProperty('min-width', '60px', 'important');
                 }
             }
         }
