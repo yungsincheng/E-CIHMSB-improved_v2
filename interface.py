@@ -709,14 +709,8 @@ div.hint-text {
     color: #4f7343 !important;
 }
 
-/* ----- bits 資訊樣式（機密文字：10 字、所需容量：80 bits）----- */
-.bits-info {
-    font-size: 24px !important;
-    color: #4f7343 !important;
-    font-weight: bold !important;
-}
-
-/* ----- 已選擇資訊樣式（已選擇對象：XXX）----- */
+/* ----- 資訊文字樣式（容量、已選擇對象）----- */
+.bits-info,
 .selected-info {
     font-size: 24px !important;
     color: #4f7343 !important;
@@ -840,8 +834,6 @@ h3 { font-size: clamp(28px, 3vw, 36px) !important; font-weight: bold !important;
     display: none !important;
 }
 
-
-
 /* ----- Caption 樣式（檔案上傳提示文字）----- */
 .stCaption, [data-testid="stCaptionContainer"] {
     color: #443C3C !important;
@@ -849,54 +841,21 @@ h3 { font-size: clamp(28px, 3vw, 36px) !important; font-weight: bold !important;
 }
 
 /* ----- FileUploader 樣式（上傳圖像、上傳 Z碼圖）----- */
-[data-testid="stFileUploader"] > div > div {
-    background-color: #ecefef !important;
-}
-
+[data-testid="stFileUploader"] > div > div,
 [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] {
     background-color: #ecefef !important;
 }
 
-/* Browse files 按鈕背景顏色 */
-[data-testid="stFileUploader"] button,
-[data-testid="stFileUploader"] [data-testid="stBaseButton-secondary"],
-[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] button {
+/* Browse files 按鈕 */
+[data-testid="stFileUploader"] button {
     background-color: #ecefef !important;
     color: #443C3C !important;
     border: 1px solid #ccc !important;
 }
 
-/* 已上傳檔案名稱和大小的字體顏色 */
-[data-testid="stFileUploader"] [data-testid="stFileUploaderFile"],
-[data-testid="stFileUploader"] [data-testid="stFileUploaderFile"] span,
-[data-testid="stFileUploader"] [data-testid="stFileUploaderFile"] small,
-[data-testid="stFileUploader"] small,
-[data-testid="stFileUploader"] .uploadedFileName,
-[data-testid="stFileUploader"] div[data-testid="stMarkdownContainer"] p {
-    color: #443C3C !important;
-}
-
-/* 檔案資訊區塊 */
-[data-testid="stFileUploader"] section > div {
-    color: #443C3C !important;
-}
-
-[data-testid="stFileUploader"] section small {
-    color: #443C3C !important;
-}
-
-/* 已上傳檔案列表 - 強制覆蓋所有文字顏色 */
+/* 已上傳檔案文字顏色 */
 [data-testid="stFileUploader"] section,
-[data-testid="stFileUploader"] section *,
-[data-testid="stFileUploader"] section div,
-[data-testid="stFileUploader"] section span,
-[data-testid="stFileUploader"] section p,
-[data-testid="stFileUploader"] [data-testid="stFileUploaderFile"] *,
-.uploadedFile,
-.uploadedFile *,
-[class*="uploadedFile"] *,
-[data-testid="stFileUploader"] li,
-[data-testid="stFileUploader"] li * {
+[data-testid="stFileUploader"] section * {
     color: #443C3C !important;
 }
 
@@ -920,7 +879,15 @@ h3 { font-size: clamp(28px, 3vw, 36px) !important; font-weight: bold !important;
 }
 
 /* ----- 下拉選單列表樣式 ----- */
-[data-baseweb="popover"] li {
+[data-baseweb="popover"],
+[data-baseweb="popover"] > div,
+ul[role="listbox"] {
+    background-color: #ecefef !important;
+}
+
+[data-baseweb="popover"] li,
+[data-baseweb="menu"] li,
+ul[role="listbox"] li {
     background-color: #ecefef !important;
     font-size: 22px !important;
     font-weight: normal !important;
@@ -929,51 +896,14 @@ h3 { font-size: clamp(28px, 3vw, 36px) !important; font-weight: bold !important;
     padding: 12px 16px !important;
 }
 
-/* 下拉列表容器背景 */
-[data-baseweb="popover"],
-[data-baseweb="popover"] > div,
-ul[role="listbox"] {
-    background-color: #ecefef !important;
-}
-
-[data-baseweb="popover"] li span,
-[data-baseweb="popover"] li div,
-[data-baseweb="popover"] [role="option"],
-[data-baseweb="popover"] [role="option"] *,
-[data-baseweb="menu"] li,
-[data-baseweb="menu"] li *,
-ul[role="listbox"] li,
-ul[role="listbox"] li * {
-    color: #333 !important;
-    background-color: #ecefef !important;
-    font-size: 22px !important;
-    font-weight: normal !important;
-}
-
 ul[role="listbox"] li:hover,
 [data-baseweb="menu"] li:hover {
     background-color: #dce0e0 !important;
 }
 
-/* ----- 下拉選單勾選標記顏色 ----- */
-[data-baseweb="menu"] li svg,
-[data-baseweb="select"] svg[data-baseweb="icon"],
-ul[role="listbox"] li svg,
-[data-baseweb="popover"] li svg,
-[data-baseweb="menu"] [aria-selected="true"] svg,
-ul[role="listbox"] [aria-selected="true"] svg {
-    fill: #443C3C !important;
-    color: #443C3C !important;
-}
 
-/* 確保選中的值完整顯示 */
-[data-baseweb="select"] > div {
-    min-height: 45px !important;
-    padding: 8px !important;
-}
 
 [data-baseweb="select"] [data-testid="stMarkdownContainer"],
-[data-baseweb="select"] .css-1dimb5e-singleValue,
 [data-baseweb="select"] div[class*="singleValue"] {
     overflow: visible !important;
     text-overflow: unset !important;
@@ -986,25 +916,14 @@ ul[role="listbox"] [aria-selected="true"] svg {
     padding-bottom: 3rem !important;
     max-width: 1400px !important;
     margin: 0 auto !important;
-}
-
-/* 功能頁面容器居中 */
-[data-testid="stMain"] > .block-container {
-    max-width: 1400px !important;
-    margin: 0 auto !important;
     padding-left: 2rem !important;
     padding-right: 2rem !important;
 }
 
-/* 內容區域對齊步驟條 */
+/* 內容區域居中對齊 */
 [data-testid="stMain"] .stSelectbox,
 [data-testid="stMain"] .stTextArea,
-[data-testid="stMain"] .stFileUploader{
-    max-width: 1200px !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-}
-
+[data-testid="stMain"] .stFileUploader,
 [data-testid="stMain"] .stMarkdown {
     max-width: 1200px !important;
     margin-left: auto !important;
@@ -1013,7 +932,7 @@ ul[role="listbox"] [aria-selected="true"] svg {
 
 /* ----- 大螢幕優化 ----- */
 @media (min-width: 1600px) {
-    [data-testid="stMain"] > .block-container {
+    .block-container {
         max-width: 1500px !important;
         padding-left: 3rem !important;
         padding-right: 3rem !important;
@@ -1046,14 +965,13 @@ ul[role="listbox"] [aria-selected="true"] svg {
 </style>
 """, unsafe_allow_html=True)
 
-# ==================== JavaScript：下拉選單滾動條 + textarea 滾動條處理 ====================
+# ==================== JavaScript：textarea 滾動條處理 ====================
 # 用 JavaScript 強制修改樣式，確保在 Streamlit 動態更新後仍然生效
 components.html("""
 <script>
-// 注入下拉選單滾動條樣式（米色風格）
-function injectScrollbarStyle() {
+// 隱藏 textarea 滾動條（注入 CSS）
+function hideTextareaScrollbar() {
     const css = `
-        /* textarea 完全隱藏滾動條 */
         .stTextArea::-webkit-scrollbar,
         .stTextArea *::-webkit-scrollbar {
             display: none !important;
@@ -1067,7 +985,6 @@ function injectScrollbarStyle() {
         }
     `;
     
-    // 注入到 Streamlit 主頁面
     if (window.parent && window.parent.document && window.parent.document.head) {
         const style = document.createElement('style');
         style.textContent = css;
@@ -1083,10 +1000,8 @@ function fixTextareaScrollbar() {
     if (window.parent && window.parent.document) {
         const textareas = window.parent.document.querySelectorAll('.stTextArea');
         textareas.forEach(ta => {
-            // 設定容器本身
             ta.style.cssText += 'overflow:hidden!important;scrollbar-width:none!important;';
             
-            // 設定所有子元素（排除 textarea）
             const allElements = ta.querySelectorAll('*');
             allElements.forEach(el => {
                 if (el.tagName !== 'TEXTAREA') {
@@ -1094,7 +1009,6 @@ function fixTextareaScrollbar() {
                 }
             });
             
-            // textarea 本身可以滾動但隱藏滾動條
             const textarea = ta.querySelector('textarea');
             if (textarea) {
                 textarea.style.cssText += 'overflow-y:auto!important;scrollbar-width:none!important;-ms-overflow-style:none!important;';
@@ -1104,18 +1018,18 @@ function fixTextareaScrollbar() {
 }
 
 // 執行樣式注入
-injectScrollbarStyle();
+hideTextareaScrollbar();
 fixTextareaScrollbar();
-setTimeout(injectScrollbarStyle, 300);
+setTimeout(hideTextareaScrollbar, 300);
 setTimeout(fixTextareaScrollbar, 300);
-setTimeout(injectScrollbarStyle, 1000);
+setTimeout(hideTextareaScrollbar, 1000);
 setTimeout(fixTextareaScrollbar, 1000);
 setTimeout(fixTextareaScrollbar, 2000);
 
 // 監聽 DOM 變化，新元素出現時也套用樣式
 if (window.parent && window.parent.document) {
     const observer = new MutationObserver(() => {
-        injectScrollbarStyle();
+        hideTextareaScrollbar();
         fixTextareaScrollbar();
     });
     observer.observe(window.parent.document.body, { childList: true, subtree: true });
