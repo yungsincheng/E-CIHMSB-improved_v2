@@ -451,12 +451,14 @@ def calculate_required_bits_for_image(image):
     return required_bits, size
 
 # ==================== Streamlit 頁面配置 ====================
+# 設定頁面標題、圖示、寬螢幕模式、隱藏側邊欄
 st.set_page_config(page_title="🔐 高效能無載體之機密編碼技術", page_icon="🔐", layout="wide", initial_sidebar_state="collapsed")
 
 # ==================== CSS 樣式 ====================
+# 包含：背景圖片、隱藏 Streamlit 預設元素、側邊欄樣式、按鈕樣式、表單樣式等
 st.markdown("""
 <style>
-/* 背景圖片 */
+/* ----- 背景圖片 ----- */
 .stApp {
     background-image: url('https://i.pinimg.com/736x/53/1a/01/531a01457eca178f01c83ac2ede3f102.jpg');
     background-size: 100% 100%;
@@ -465,7 +467,7 @@ st.markdown("""
     background-attachment: fixed;
 }
 
-/* 隱藏 Streamlit 預設元素 */
+/* ----- 隱藏 Streamlit 預設元素（header、footer、deploy按鈕等）----- */
 header[data-testid="stHeader"],
 #MainMenu, footer, .stDeployButton, div[data-testid="stToolbar"],
 .viewerBadge_container__r5tak, .viewerBadge_link__qRIco,
@@ -477,9 +479,7 @@ iframe[title="Streamlit"], div[class*="styles_viewerBadge"],
     visibility: hidden !important;
 }
 
-.block-container { padding-top: 1rem !important; }
-
-/* 隱藏側邊欄控制按鈕 */
+/* ----- 隱藏側邊欄控制按鈕（Streamlit 預設的展開/收合按鈕）----- */
 button[data-testid="collapsedControl"],
 [data-testid="collapsedControl"],
 [data-testid="stSidebarCollapsedControl"],
@@ -501,7 +501,7 @@ section[data-testid="stSidebar"] button[kind="header"],
     pointer-events: none !important;
 }
 
-/* 自訂標籤：可點擊 */
+/* ----- 自訂「對象管理」標籤（左側垂直標籤）----- */
 #sidebar-toggle-label {
     position: fixed;
     top: 77px;
@@ -521,13 +521,13 @@ section[data-testid="stSidebar"] button[kind="header"],
     padding-left: 12px;
 }
 
-/* 主內容區 */
+/* ----- 主內容區 ----- */
 [data-testid="stMain"] {
     margin-left: 0 !important;
     width: 100% !important;
 }
 
-/* 側邊欄樣式 */
+/* ----- 側邊欄樣式（對象管理面板）----- */
 [data-testid="stSidebar"] {
     position: fixed !important;
     left: 0 !important;
@@ -544,12 +544,15 @@ section[data-testid="stSidebar"] button[kind="header"],
     box-shadow: 4px 0 15px rgba(0,0,0,0.2) !important;
 }
 
+/* 側邊欄展開狀態 */
 [data-testid="stSidebar"].sidebar-open {
     transform: translateX(0) !important;
 }
 
+/* 側邊欄文字顏色 */
 [data-testid="stSidebar"] * { color: #443C3C !important; }
 
+/* 側邊欄輸入框樣式 */
 [data-testid="stSidebar"] input,
 [data-testid="stSidebar"] textarea {
     background-color: #ecefef !important;
@@ -557,6 +560,7 @@ section[data-testid="stSidebar"] button[kind="header"],
     border: 1px solid #ccc !important;
 }
 
+/* 側邊欄標題 */
 [data-testid="stSidebar"] h3 {
     font-size: 38px !important;
     font-weight: bold !important;
@@ -566,6 +570,7 @@ section[data-testid="stSidebar"] button[kind="header"],
 
 [data-testid="stSidebar"] strong { font-size: 18px !important; }
 
+/* 側邊欄 Expander（新增對象、對象列表的展開區塊）*/
 [data-testid="stSidebar"] [data-testid="stExpander"] summary,
 [data-testid="stSidebar"] details summary span {
     font-size: 24px !important;
@@ -595,7 +600,7 @@ section[data-testid="stSidebar"] button[kind="header"],
     background-color: #e9ded0 !important;
 }
 
-/* 側邊欄下拉選單 */
+/* ----- 側邊欄下拉選單樣式 ----- */
 [data-testid="stSidebar"] .stSelectbox > div > div {
     background-color: #ecefef !important;
     color: #333 !important;
@@ -617,7 +622,7 @@ section[data-testid="stSidebar"] button[kind="header"],
     padding-bottom: 6px !important;
 }
 
-/* 只禁用 selectbox 的搜索輸入，不影響 text_input */
+/* 禁用 selectbox 的搜索輸入（避免輸入文字搜尋）*/
 [data-testid="stSidebar"] .stSelectbox [data-baseweb="select"] input {
     pointer-events: none !important;
     caret-color: transparent !important;
@@ -627,12 +632,10 @@ section[data-testid="stSidebar"] button[kind="header"],
 
 /* 側邊欄輸入框 - 確保可以輸入 */
 [data-testid="stSidebar"] .stTextInput input {
-    background-color: #ecefef !important;
-    color: #333 !important;
-    border: 1px solid #ccc !important;
     pointer-events: auto !important;
     opacity: 1 !important;
     caret-color: #333 !important;
+    font-size: 22px !important;
 }
 
 [data-testid="stSidebar"] input,
@@ -641,7 +644,7 @@ section[data-testid="stSidebar"] button[kind="header"],
     font-size: 22px !important;
 }
 
-/* 側邊欄按鈕白色背景 */
+/* ----- 側邊欄按鈕樣式 ----- */
 [data-testid="stSidebar"] .stButton button {
     background-color: #ecefef !important;
     color: #333 !important;
@@ -653,11 +656,9 @@ section[data-testid="stSidebar"] button[kind="header"],
     border-color: #4f7343 !important;
 }
 
-/* 側邊欄 primary 按鈕 */
-[data-testid="stSidebar"] .stButton button[kind="primary"] {
-    background: #8ba7c8 !important;
-    color: white !important;
-    border: none !important;
+[data-testid="stSidebar"] .stButton button span,
+[data-testid="stSidebar"] .stButton button p {
+    font-size: 22px !important;
 }
 
 [data-testid="stSidebar"] [data-testid="stBaseButton-header"],
@@ -665,7 +666,7 @@ section[data-testid="stSidebar"] button[kind="header"],
     display: none !important;
 }
 
-/* 功能頁面樣式 */
+/* ----- 頁面標題樣式（嵌入/提取）----- */
 .page-title-embed {
     font-size: clamp(36px, 4vw, 56px);
     font-weight: bold;
@@ -684,21 +685,21 @@ section[data-testid="stSidebar"] button[kind="header"],
     background-clip: text;
 }
 
-/* 訊息框 */
+/* ----- 錯誤訊息框（嵌入失敗、提取失敗時顯示）----- */
 .error-box {
     background: linear-gradient(135deg, #8B5A5A 0%, #A67B7B 100%);
     color: white; padding: 20px 30px; border-radius: 10px;
     margin: 10px 0; display: inline-block; font-size: clamp(18px, 2vw, 26px); min-width: 300px;
 }
 
-/* 字體放大 */
+/* ----- 主內容區文字放大 ----- */
 [data-testid="stMain"] .stMarkdown p,
 [data-testid="stMain"] .stText p {
     font-size: clamp(22px, 2.5vw, 30px) !important;
     font-weight: bold !important;
 }
 
-/* 小提示文字樣式 */
+/* ----- 小提示文字樣式（💡 點擊「對象管理」可修改資料）----- */
 [data-testid="stMain"] .stMarkdown p.hint-text,
 [data-testid="stMain"] .stMarkdown div.hint-text,
 p.hint-text,
@@ -708,29 +709,31 @@ div.hint-text {
     color: #4f7343 !important;
 }
 
-/* bits 資訊專用樣式 */
+/* ----- bits 資訊樣式（機密文字：10 字、所需容量：80 bits）----- */
 .bits-info {
     font-size: 24px !important;
     color: #4f7343 !important;
     font-weight: bold !important;
 }
 
-/* 已選擇資訊專用樣式 */
+/* ----- 已選擇資訊樣式（已選擇對象：XXX）----- */
 .selected-info {
     font-size: 24px !important;
     color: #4f7343 !important;
     font-weight: bold !important;
 }
 
+/* ----- h3 標題樣式 ----- */
 h3 { font-size: clamp(28px, 3vw, 36px) !important; font-weight: bold !important; }
 
-/* 按鈕樣式 */
+/* ----- 主內容區按鈕樣式 ----- */
 .stButton button span,
 .stButton button p {
     font-size: 18px !important;
     font-weight: bold !important;
 }
 
+/* Primary 按鈕（開始嵌入、開始提取等）*/
 [data-testid="stMain"] .stButton button[kind="primary"] {
     background: #4A6B8A !important;
     color: white !important;
@@ -741,6 +744,7 @@ h3 { font-size: clamp(28px, 3vw, 36px) !important; font-weight: bold !important;
     min-width: 80px !important;
 }
 
+/* Secondary 按鈕（返回、文字/圖像切換等）*/
 [data-testid="stMain"] .stButton button[kind="secondary"] {
     background: #ecefef !important;
     color: #666 !important;
@@ -766,6 +770,7 @@ h3 { font-size: clamp(28px, 3vw, 36px) !important; font-weight: bold !important;
     font-size: 24px !important;
 }
 
+/* 側邊欄 primary 按鈕（新增按鈕）*/
 [data-testid="stSidebar"] .stButton button[kind="primary"] {
     background: #8ba7c8 !important;
     color: white !important;
@@ -773,10 +778,9 @@ h3 { font-size: clamp(28px, 3vw, 36px) !important; font-weight: bold !important;
     border-radius: 8px !important;
 }
 
-/* 表單元素標題 - 放大字體（只限主內容區）*/
+/* ----- 表單元素標籤樣式（主內容區）----- */
 [data-testid="stMain"] .stSelectbox label, 
 [data-testid="stMain"] .stSelectbox label p,
-[data-testid="stMain"] .stRadio label, 
 [data-testid="stMain"] .stTextArea label, 
 [data-testid="stMain"] .stFileUploader label,
 [data-testid="stMain"] [data-testid="stWidgetLabel"] p {
@@ -785,7 +789,7 @@ h3 { font-size: clamp(28px, 3vw, 36px) !important; font-weight: bold !important;
     color: #443C3C !important;
 }
 
-/* 側邊欄表單標籤 - 較小字體 */
+/* ----- 側邊欄表單標籤樣式 ----- */
 [data-testid="stSidebar"] .stSelectbox label,
 [data-testid="stSidebar"] .stTextInput label,
 [data-testid="stSidebar"] [data-testid="stWidgetLabel"] p {
@@ -794,61 +798,7 @@ h3 { font-size: clamp(28px, 3vw, 36px) !important; font-weight: bold !important;
     color: #443C3C !important;
 }
 
-/* 側邊欄輸入框文字 */
-[data-testid="stSidebar"] .stTextInput input {
-    font-size: 22px !important;
-}
-
-/* 側邊欄下拉選單文字 */
-[data-testid="stSidebar"] .stSelectbox [data-baseweb="select"] span,
-[data-testid="stSidebar"] .stSelectbox [data-baseweb="select"] div {
-    font-size: 22px !important;
-}
-
-/* 側邊欄按鈕文字 */
-[data-testid="stSidebar"] .stButton button {
-    font-size: 22px !important;
-}
-[data-testid="stSidebar"] .stButton button span,
-[data-testid="stSidebar"] .stButton button p {
-    font-size: 22px !important;
-}
-
-.stRadio [role="radiogroup"] label,
-.stRadio [role="radiogroup"] label p {
-    font-size: 30px !important;
-    color: #443C3C !important;
-    font-weight: bold !important;
-}
-
-/* Radio 按鈕水平對齊 */
-.stRadio [role="radiogroup"] label {
-    display: flex !important;
-    align-items: center !important;
-}
-
-.stRadio [role="radiogroup"] label > div:first-child {
-    display: flex !important;
-    align-items: center !important;
-}
-
-/* Radio 按鈕樣式 - 圓形 */
-.stRadio [data-baseweb="radio"] > div:first-child {
-    width: 22px !important;
-    height: 22px !important;
-    min-width: 22px !important;
-    min-height: 22px !important;
-    border-radius: 50% !important;
-    border: 2px solid #443C3C !important;
-    background-color: #ecefef !important;
-}
-
-/* 選中時內部圓點填滿 */
-.stRadio [data-baseweb="radio"] > div:first-child > div {
-    background-color: #443C3C !important;
-    border-radius: 50% !important;
-}
-
+/* ----- TextArea 樣式（機密文字輸入框）----- */
 .stTextArea textarea {
     font-size: 24px !important;
     background-color: #ecefef !important;
@@ -902,7 +852,7 @@ h3 { font-size: clamp(28px, 3vw, 36px) !important; font-weight: bold !important;
     display: none !important;
 }
 
-/* ===== 強制隱藏 textarea 所有滾動條 ===== */
+/* ----- 強制隱藏 textarea 所有滾動條 ----- */
 .stTextArea,
 .stTextArea > div,
 .stTextArea > div > div,
@@ -959,12 +909,13 @@ h3 { font-size: clamp(28px, 3vw, 36px) !important; font-weight: bold !important;
     height: 0 !important;
 }
 
+/* ----- Caption 樣式（檔案上傳提示文字）----- */
 .stCaption, [data-testid="stCaptionContainer"] {
     color: #443C3C !important;
     font-size: clamp(16px, 1.8vw, 22px) !important;
 }
 
-/* FileUploader 樣式 */
+/* ----- FileUploader 樣式（上傳圖像、上傳 Z碼圖）----- */
 [data-testid="stFileUploader"] > div > div {
     background-color: #ecefef !important;
 }
@@ -1016,7 +967,7 @@ h3 { font-size: clamp(28px, 3vw, 36px) !important; font-weight: bold !important;
     color: #443C3C !important;
 }
 
-/* Selectbox 樣式 */
+/* ----- Selectbox 樣式（下拉選單）----- */
 [data-testid="stMain"] .stSelectbox > div > div {
     background-color: #ecefef !important;
     border-radius: 8px !important;
@@ -1035,6 +986,7 @@ h3 { font-size: clamp(28px, 3vw, 36px) !important; font-weight: bold !important;
     line-height: 1.4 !important;
 }
 
+/* ----- 下拉選單列表樣式 ----- */
 [data-baseweb="popover"] li {
     background-color: #ecefef !important;
     font-size: 22px !important;
@@ -1070,7 +1022,7 @@ ul[role="listbox"] li:hover,
     background-color: #dce0e0 !important;
 }
 
-/* ===== 下拉選單勾選標記顏色 ===== */
+/* ----- 下拉選單勾選標記顏色 ----- */
 [data-baseweb="menu"] li svg,
 [data-baseweb="select"] svg[data-baseweb="icon"],
 ul[role="listbox"] li svg,
@@ -1081,7 +1033,7 @@ ul[role="listbox"] [aria-selected="true"] svg {
     color: #443C3C !important;
 }
 
-/* ===== 下拉選單滾動條樣式 ===== */
+/* ----- 下拉選單滾動條樣式（米色風格）----- */
 [data-baseweb="menu"]::-webkit-scrollbar,
 [data-baseweb="popover"]::-webkit-scrollbar,
 [data-baseweb="popover"] > div::-webkit-scrollbar,
@@ -1167,7 +1119,7 @@ body [data-baseweb="select"] ~ div *::-webkit-scrollbar-track,
     white-space: nowrap !important;
 }
 
-/* 間距調整 */
+/* ----- 頁面間距調整 ----- */
 .block-container {
     padding-top: 0.5rem !important;
     padding-bottom: 3rem !important;
@@ -1186,8 +1138,7 @@ body [data-baseweb="select"] ~ div *::-webkit-scrollbar-track,
 /* 內容區域對齊步驟條 */
 [data-testid="stMain"] .stSelectbox,
 [data-testid="stMain"] .stTextArea,
-[data-testid="stMain"] .stFileUploader,
-[data-testid="stMain"] .stRadio {
+[data-testid="stMain"] .stFileUploader{
     max-width: 1200px !important;
     margin-left: auto !important;
     margin-right: auto !important;
@@ -1199,7 +1150,7 @@ body [data-baseweb="select"] ~ div *::-webkit-scrollbar-track,
     margin-right: auto !important;
 }
 
-/* 大螢幕優化 */
+/* ----- 大螢幕優化 ----- */
 @media (min-width: 1600px) {
     [data-testid="stMain"] > .block-container {
         max-width: 1500px !important;
@@ -1219,8 +1170,9 @@ body [data-baseweb="select"] ~ div *::-webkit-scrollbar-track,
     }
 }
 
+/* ----- 其他間距調整 ----- */
 .stMarkdown hr { margin: 0.5rem 0 !important; }
-.stSelectbox, .stTextArea, .stFileUploader, .stRadio { margin-bottom: 0.3rem !important; }
+.stSelectbox, .stTextArea, .stFileUploader { margin-bottom: 0.3rem !important; }
 
 [data-testid="stHorizontalBlock"] {
     flex-wrap: nowrap !important;
@@ -1233,12 +1185,14 @@ body [data-baseweb="select"] ~ div *::-webkit-scrollbar-track,
 </style>
 """, unsafe_allow_html=True)
 
-# JavaScript 強制修改下拉選單滾動條顏色 + 隱藏 textarea 滾動條 + 勾選樣式
+# ==================== JavaScript：下拉選單滾動條 + textarea 滾動條處理 ====================
+# 用 JavaScript 強制修改樣式，確保在 Streamlit 動態更新後仍然生效
 components.html("""
 <script>
+// 注入下拉選單滾動條樣式（米色風格）
 function injectScrollbarStyle() {
     const css = `
-        /* 只針對下拉選單滾動條 - 米色風格 */
+        /* 下拉選單滾動條 */
         [data-baseweb="popover"]::-webkit-scrollbar,
         [data-baseweb="popover"] > div::-webkit-scrollbar,
         [data-baseweb="popover"] ul::-webkit-scrollbar,
@@ -1294,7 +1248,7 @@ function injectScrollbarStyle() {
         }
     `;
     
-    // 注入到 parent document (Streamlit 主頁面)
+    // 注入到 Streamlit 主頁面
     if (window.parent && window.parent.document && window.parent.document.head) {
         const style = document.createElement('style');
         style.textContent = css;
@@ -1305,10 +1259,9 @@ function injectScrollbarStyle() {
     }
 }
 
-// 強制隱藏 textarea 所有滾動條
+// 強制隱藏 textarea 所有滾動條（用 inline style 覆蓋)
 function fixTextareaScrollbar() {
     if (window.parent && window.parent.document) {
-        // 直接操作 DOM 元素設定 inline style（最高優先級）
         const textareas = window.parent.document.querySelectorAll('.stTextArea');
         textareas.forEach(ta => {
             // 設定容器本身
@@ -1331,6 +1284,7 @@ function fixTextareaScrollbar() {
     }
 }
 
+// 執行樣式注入
 injectScrollbarStyle();
 fixTextareaScrollbar();
 setTimeout(injectScrollbarStyle, 300);
@@ -1351,15 +1305,18 @@ if (window.parent && window.parent.document) {
 """, height=0)
 
 # ==================== 初始化狀態 ====================
+# current_mode: None=首頁, 'embed'=嵌入模式, 'extract'=提取模式
 if 'current_mode' not in st.session_state:
     st.session_state.current_mode = None
 
 # ==================== 側邊欄 - 對象管理 ====================
+# 只在嵌入/提取模式下顯示（首頁不顯示）
 if st.session_state.current_mode is not None:
-    # 根據當前模式設定顏色
+    # 根據當前模式設定顏色（嵌入=藍色，提取=粉色）
     sidebar_title_color = "#4A6B8A" if st.session_state.current_mode == 'embed' else "#7D5A6B"
     
     with st.sidebar:
+        # 側邊欄標題樣式 + 關閉按鈕
         st.markdown(f"""
         <style>
         section[data-testid="stSidebar"] details summary span p {{ font-size: 22px !important; }}
@@ -1377,30 +1334,32 @@ if st.session_state.current_mode is not None:
         contacts = st.session_state.contacts
         style_options = ["選擇"] + list(STYLE_CATEGORIES.keys())
         
-        # 新增對象
+         # ----- 新增對象區塊 -----
         with st.expander("新增對象", expanded=False):
             add_counter = st.session_state.get('add_contact_counter', 0)
             new_name = st.text_input("名稱", key=f"sidebar_new_name_{add_counter}")
             new_style = st.selectbox("綁定風格", style_options, key=f"sidebar_new_style_{add_counter}")
-            
+
+            # 檢查是否可以新增（名稱不為空 + 已選擇風格）
             can_add = new_name and new_name.strip() and new_style != "選擇"
             if st.button("新增", key="sidebar_add_btn", use_container_width=True, disabled=not can_add, type="primary" if can_add else "secondary"):
                 try:
-                    new_key = generate_contact_key()
+                    new_key = generate_contact_key()  # 生成對象專屬密鑰
                     st.session_state.contacts[new_name.strip()] = {
                         "style": new_style,
                         "key": new_key
                     }
-                    save_contacts(st.session_state.contacts)
-                    st.toast(f"✅ 已新增「{new_name.strip()}」")
+                    save_contacts(st.session_state.contacts)  # 儲存到 Supabase
+                    st.toast(f"已新增「{new_name.strip()}」")
                     st.session_state.add_contact_counter = add_counter + 1
                     st.rerun()
                 except Exception as e:
-                    st.error(f"❌ 新增失敗：{e}")
+                    st.error(f"新增失敗：{e}")
         
         st.markdown("---")
         st.markdown('<div id="built-contacts-title">對象列表</div>', unsafe_allow_html=True)
-        
+
+        # ----- 對象列表區塊 -----
         if contacts:
             for name, contact_data in contacts.items():
                 # 取得風格（支援新舊格式）
@@ -1415,10 +1374,10 @@ if st.session_state.current_mode is not None:
                         key=f"new_style_{name}")
                     
                     has_change = (new_nickname.strip() != name) or (new_style_edit != style)
-                    
+
+                    # 儲存修改按鈕
                     if st.button("儲存修改", key=f"save_{name}", use_container_width=True, type="primary" if has_change else "secondary"):
-                        # 保留原有的密鑰
-                        old_key = get_contact_key(contacts, name)
+                        old_key = get_contact_key(contacts, name)  # 保留原有的密鑰
                         if new_nickname.strip() != name:
                             del st.session_state.contacts[name]
                         st.session_state.contacts[new_nickname.strip()] = {
@@ -1427,7 +1386,8 @@ if st.session_state.current_mode is not None:
                         }
                         save_contacts(st.session_state.contacts)
                         st.rerun()
-                    
+
+                    # 刪除按鈕
                     if st.button("刪除", key=f"del_{name}", use_container_width=True):
                         del st.session_state.contacts[name]
                         save_contacts(st.session_state.contacts)
@@ -1435,10 +1395,9 @@ if st.session_state.current_mode is not None:
         else:
             st.markdown('<p style="font-size: 22px; color: #666;">尚無對象</p>', unsafe_allow_html=True)
 
-# ==================== 主要邏輯 ====================
+# ==================== 主要邏輯：根據 current_mode 顯示不同頁面 ====================
 if st.session_state.current_mode is None:
     # ==================== 首頁 ====================
-    
     st.markdown("""
     <style>
     html, body, [data-testid="stAppViewContainer"], .main, [data-testid="stMain"] {
