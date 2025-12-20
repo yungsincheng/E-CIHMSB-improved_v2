@@ -1063,48 +1063,6 @@ components.html("""
 // 注入下拉選單滾動條樣式（米色風格）
 function injectScrollbarStyle() {
     const css = `
-        /* 下拉選單滾動條 */
-        [data-baseweb="popover"]::-webkit-scrollbar,
-        [data-baseweb="popover"] > div::-webkit-scrollbar,
-        [data-baseweb="popover"] ul::-webkit-scrollbar,
-        [data-baseweb="menu"]::-webkit-scrollbar,
-        ul[role="listbox"]::-webkit-scrollbar,
-        div[data-baseweb="popover"] *::-webkit-scrollbar {
-            width: 8px !important;
-        }
-        [data-baseweb="popover"]::-webkit-scrollbar-track,
-        [data-baseweb="popover"] > div::-webkit-scrollbar-track,
-        [data-baseweb="popover"] ul::-webkit-scrollbar-track,
-        [data-baseweb="menu"]::-webkit-scrollbar-track,
-        ul[role="listbox"]::-webkit-scrollbar-track,
-        div[data-baseweb="popover"] *::-webkit-scrollbar-track {
-            background: #f5f0e6 !important;
-            border-radius: 4px !important;
-        }
-        [data-baseweb="popover"]::-webkit-scrollbar-thumb,
-        [data-baseweb="popover"] > div::-webkit-scrollbar-thumb,
-        [data-baseweb="popover"] ul::-webkit-scrollbar-thumb,
-        [data-baseweb="menu"]::-webkit-scrollbar-thumb,
-        ul[role="listbox"]::-webkit-scrollbar-thumb,
-        div[data-baseweb="popover"] *::-webkit-scrollbar-thumb {
-            background: #b8a88a !important;
-            border-radius: 4px !important;
-        }
-        [data-baseweb="popover"]::-webkit-scrollbar-thumb:hover,
-        [data-baseweb="popover"] > div::-webkit-scrollbar-thumb:hover,
-        [data-baseweb="menu"]::-webkit-scrollbar-thumb:hover,
-        ul[role="listbox"]::-webkit-scrollbar-thumb:hover {
-            background: #9a8b6e !important;
-        }
-        [data-baseweb="popover"],
-        [data-baseweb="popover"] > div,
-        [data-baseweb="popover"] ul,
-        [data-baseweb="menu"],
-        ul[role="listbox"] {
-            scrollbar-width: thin !important;
-            scrollbar-color: #b8a88a #f5f0e6 !important;
-        }
-        
         /* textarea 完全隱藏滾動條 */
         .stTextArea::-webkit-scrollbar,
         .stTextArea *::-webkit-scrollbar {
