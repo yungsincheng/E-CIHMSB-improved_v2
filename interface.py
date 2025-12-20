@@ -717,7 +717,7 @@ div.hint-text {
 
 /* 已選擇資訊專用樣式 */
 .selected-info {
-    font-size: 28px !important;
+    font-size: 24px !important;
     color: #4f7343 !important;
     font-weight: bold !important;
 }
