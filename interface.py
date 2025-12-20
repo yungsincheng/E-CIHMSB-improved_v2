@@ -2238,15 +2238,6 @@ elif st.session_state.current_mode == 'embed':
         
         if all_done and st.session_state.get('trigger_embed'):
             st.session_state.trigger_embed = False
-
-            # 檢查容量是否足夠
-            image_size = st.session_state.get('embed_image_size')
-            capacity = calculate_capacity(image_size, image_size)
-            secret_bits_needed = st.session_state.get('secret_bits_saved', 0)
-            
-            if secret_bits_needed > capacity:
-                st.markdown(f'<div class="error-box">容量不足！機密大小 ({secret_bits_needed:,} bits) 超過載體容量 ({capacity:,} bits)，請選擇更大的載體尺寸。</div>', unsafe_allow_html=True)
-                st.stop()
                 
             processing_placeholder = st.empty()
             processing_placeholder.markdown("""
