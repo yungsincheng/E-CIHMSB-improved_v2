@@ -727,12 +727,6 @@ div.hint-text {
 h3 { font-size: clamp(28px, 3vw, 36px) !important; font-weight: bold !important; }
 
 /* ----- 主內容區按鈕樣式 ----- */
-.stButton button span,
-.stButton button p {
-    font-size: 18px !important;
-    font-weight: bold !important;
-}
-
 /* Primary 按鈕（開始嵌入、開始提取等）*/
 [data-testid="stMain"] .stButton button[kind="primary"] {
     background: #4A6B8A !important;
@@ -846,11 +840,7 @@ h3 { font-size: clamp(28px, 3vw, 36px) !important; font-weight: bold !important;
     display: none !important;
 }
 
-/* 隱藏 Ctrl+Enter 提示 */
-.stTextArea [data-testid="stTextAreaRootContainer"] > div:last-child,
-.stTextArea .st-emotion-cache-1gulkj5 {
-    display: none !important;
-}
+
 
 /* ----- Caption 樣式（檔案上傳提示文字）----- */
 .stCaption, [data-testid="stCaptionContainer"] {
